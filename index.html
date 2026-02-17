@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAINTLINKZ - Build Your Bracelet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <img src="resources/LOGO.png" alt="SAINTLINKZ Logo">
+    <p>Craft Your Memories With Us</p>
+  </header>
+
+  <!-- Summary Bar -->
+  <div class="summary-bar">
+    <div class="summary-content">
+      <div class="bracelet" id="bracelet"></div>
+
+      <div class="total">
+        Total: ₱<span id="totalPrice">0</span><br>
+        Charms: <span id="charmCount">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="builder-container">
+    <div class="controls">
+      <button id="clearBtn">Clear Bracelet</button>
+      <button id="generateBtn">Copy Bracelet Code</button>
+    </div>
+
+    <div id="braceletCodeBox">
+      <strong>Copy your bracelet code and send it to us ♥</strong>
+      <div id="braceletCode">...</div>
+      <div id="copyMsg"></div>
+    </div>
+
+    <hr style="border: none; border-top: 2px dashed #aaa; margin: 40px auto 30px; width: 80%;">
+
+    <div id="decoderBox" style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+      <strong style="display: block; margin-bottom: 15px;">Or Paste Your Bracelet Code to Restore ♥</strong>
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <input type="text" id="hexCodeInput" placeholder="Paste your bracelet code here..." style="padding: 10px; border: 2px solid #ccc; border-radius: 4px; flex: 1; min-width: 250px;">
+        <button id="decodeBtn" style="padding: 10px 20px; background-color: #76023c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Restore Bracelet</button>
+      </div>
+      <div id="decodeMsg" style="margin-top: 10px; font-weight: bold;"></div>
+    </div>
+
+    <hr style="border: none; border-top: 2px dashed #aaa; margin: 40px auto 30px; width: 80%;">
+
+    <div style="text-align: center; margin-bottom: 10px;">
+      <h2 style="font-size: 1.4rem; text-transform: uppercase; color: #000000;">Choose your charms here:</h2>
+    </div>
+
+    <!-- Charm Categories Container -->
+    <div id="charmsContainer"></div>
+  </div>
+
+  <script type="module">
+    import { init } from './ui.js';
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

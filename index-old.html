@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TRINK'D - Build Your Bracelet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      color: #333;
+      padding: 20px;
+      background-color: #fafafa;
+    }
+
+    header {
+      text-align: center;
+      padding: 10px 0;
+      background-color: #000;
+      color: white;
+    }
+
+    header img {
+      height: 200px;
+      width: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .builder-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .summary-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #000;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .summary-content {
+      background: #fff;
+      border-radius: 15px;
+      padding: 15px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .bracelet {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 50px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      overflow-x: auto;
+      width: 100%;
+      scroll-behavior: smooth;
+    }
+
+    #braceletPlaceholder {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+      text-align: center;
+      width: 100%;
+      padding: 15px;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+
+    .bracelet-item {
+      position: relative;
+      margin-right: -4px;
+    }
+
+    .bracelet-item img {
+      width: 50px;
+      height: auto;
+      aspect-ratio: 2277 / 2077;
+      background-color: #fff;
+      object-fit: contain;
+      cursor: pointer;
+      border: none;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .bracelet-item:hover .remove-btn {
+      display: flex;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      background-color: #000;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #444;
+    }
+
+    .total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #000;
+      text-align: center;
+    }
+
+    .metal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .metal-buttons button.active {
+      background-color: #444;
+      border: 2px solid #000;
+    }
+
+    .controls {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .category {
+      margin-bottom: 30px;
+    }
+
+    .category h2 {
+      font-size: 1.2rem;
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .charm-menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .charm {
+      width: 60px;
+      height: auto;
+      aspect-ratio: 2277 / 2077;
+      border: 1px solid #999;
+      cursor: pointer;
+      object-fit: cover;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .charm:hover {
+      transform: scale(1.1);
+      border-color: #000;
+    }
+
+    .info-box {
+      margin-top: 40px;
+      background-color: #f8f8f8;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .info-box h3 {
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .info-box p {
+      margin: 5px 0;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    #braceletCodeBox {
+      text-align: center;
+      margin: 10px auto;
+      max-width: 600px;
+    }
+
+    #braceletCode {
+      padding: 10px;
+      background: #f1f1f1;
+      border: 1px dashed #aaa;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin-top: 5px;
+      word-wrap: break-word;
+    }
+
+    #copyMsg {
+      color: green;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .category-card {
+      background: linear-gradient(135deg, #fff, #fefefe);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 30px auto;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      max-width: 1200px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/logo.webp" alt="TRINK'D Logo">
+    <p>Build Your Own Italian Charm Bracelet</p>
+  </header>
+
+  <!-- Summary bar moved OUTSIDE of builder-container -->
+  <div class="summary-bar">
+    <div class="summary-content">
+      <div class="bracelet" id="bracelet"></div>
+      <div id="metalPlaceholder" style="text-align:center; font-weight:600; color:#666; margin-top:5px;">
+        Please choose SILVER or GOLD first
+      </div>
+
+      <div class="metal-buttons">
+        <button onclick="selectMetal('SILVER')" id="silverBtn">SILVER</button>
+        <button onclick="selectMetal('GOLD')" id="goldBtn">GOLD</button>
+      </div>
+
+      <div class="total">
+        Total: ₱<span id="totalPrice">0</span><br>
+        Charms: <span id="charmCount">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="builder-container">
+    <div class="controls">
+      <button onclick="clearBracelet()">Clear Bracelet</button>
+      <button onclick="generateBraceletCode()">Copy Bracelet Code</button>
+    </div>
+
+    <div id="braceletCodeBox">
+      <strong>Copy your bracelet code and send it to us ♥</strong>
+      <div id="braceletCode">...</div>
+      <div id="copyMsg"></div>
+    </div>
+
+    <hr style="border: none; border-top: 2px dashed #aaa; margin: 40px auto 30px; width: 80%;">
+
+    <div style="text-align: center; margin-bottom: 10px;">
+      <h2 style="font-size: 1.4rem; text-transform: uppercase; color: #000000;">Choose your charms here:</h2>
+    </div>
+
+    <!-- Category: Plain -->
+    <div class="category-card">
+      <h2>PLAIN</h2>
+      <div class="charm-menu">
+        <!-- Charm 71 -->
+        <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/71.webp"
+          class="charm"
+          data-price="15"
+          data-gold-price="25"
+          data-name="71"
+          data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/71.webp"
+          data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/71.webp"
+          loading="lazy">
+
+        <!-- Charm 72 -->
+        <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/72.webp"
+          class="charm"
+          data-price="50"
+          data-gold-price="55"
+          data-name="72"
+          data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/72.webp"
+          data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/72.webp"
+          loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedMetal = null;
+    let braceletItems = [];
+
+    function _resetBraceletCodeDisplay() {
+      const codeEl = document.getElementById('braceletCode');
+      const msgEl = document.getElementById('copyMsg');
+      if (codeEl) codeEl.innerText = '...';
+      if (msgEl) msgEl.innerText = '';
+    }
+
+    function selectMetal(metal) {
+      if (metal !== 'SILVER' && metal !== 'GOLD') return;
+      selectedMetal = metal;
+
+      document.getElementById('silverBtn').classList.remove('active');
+      document.getElementById('goldBtn').classList.remove('active');
+
+      if (metal === 'SILVER') document.getElementById('silverBtn').classList.add('active');
+      else document.getElementById('goldBtn').classList.add('active');
+
+      const placeholder = document.getElementById('metalPlaceholder');
+      if (placeholder) placeholder.style.display = 'none';
+
+      document.querySelectorAll('.charm').forEach(img => {
+        const newSrc = (selectedMetal === 'SILVER' ? img.dataset.silver : img.dataset.gold);
+        if (newSrc) img.src = newSrc;
+      });
+
+      braceletItems.forEach(item => {
+        item.src = (selectedMetal === 'SILVER' ? item.silverSrc : item.goldSrc);
+        item.price = (selectedMetal === 'SILVER' ? item.silverPrice : item.goldPrice);
+        item.name = (selectedMetal === 'SILVER' ? 'S' : 'G') + item.baseName;
+      });
+
+      _resetBraceletCodeDisplay();
+      renderBracelet();
+    }
+
+    function addCharm(charm) {
+      if (!selectedMetal) {
+        alert("Please select a metal first.");
+        return;
+      }
+
+      const baseName = charm.dataset.name;
+      const silverPrice = parseFloat(charm.dataset.price) || 0;
+      const goldPrice = parseFloat(charm.dataset.goldPrice) || silverPrice;
+      const silverSrc = charm.dataset.silver || charm.src;
+      const goldSrc = charm.dataset.gold || charm.src;
+
+      const src = (selectedMetal === 'GOLD' ? goldSrc : silverSrc);
+      const price = (selectedMetal === 'GOLD' ? goldPrice : silverPrice);
+      const codeName = (selectedMetal === 'GOLD' ? 'G' : 'S') + baseName;
+
+      braceletItems.push({
+        baseName: baseName,
+        name: codeName,
+        price: price,
+        src: src,
+        silverSrc: silverSrc,
+        goldSrc: goldSrc,
+        silverPrice: silverPrice,
+        goldPrice: goldPrice
+      });
+
+      renderBracelet();
+    }
+
+    function removeCharm(index) {
+      braceletItems.splice(index, 1);
+      renderBracelet();
+    }
+
+    function renderBracelet() {
+      const braceletDiv = document.getElementById('bracelet');
+      braceletDiv.innerHTML = '';
+
+      if (braceletItems.length === 0) {
+        braceletDiv.innerHTML = '<div id="braceletPlaceholder">Your bracelet is empty</div>';
+      } else {
+        braceletItems.forEach((item, index) => {
+          const itemDiv = document.createElement('div');
+          itemDiv.classList.add('bracelet-item');
+
+          const img = document.createElement('img');
+          img.src = item.src;
+          img.alt = item.name;
+
+          const btn = document.createElement('button');
+          btn.innerText = '×';
+          btn.classList.add('remove-btn');
+          btn.onclick = () => removeCharm(index);
+
+          itemDiv.appendChild(img);
+          itemDiv.appendChild(btn);
+          braceletDiv.appendChild(itemDiv);
+        });
+      }
+
+      const total = braceletItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+      document.getElementById('totalPrice').innerText = total;
+      document.getElementById('charmCount').innerText = braceletItems.length;
+    }
+
+    function clearBracelet() {
+      braceletItems = [];
+      _resetBraceletCodeDisplay();
+      renderBracelet();
+    }
+
+    function generateBraceletCode() {
+      const code = braceletItems.map(item => item.name).join('-');
+      document.getElementById('braceletCode').innerText = code || '...';
+      document.getElementById('copyMsg').innerText = code ? "Copied!" : "";
+      if (code) {
+        try { navigator.clipboard.writeText(code); } catch (e) { }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.charm').forEach(charm => {
+        charm.addEventListener('click', () => addCharm(charm));
+      });
+      renderBracelet();
+    });
+  </script>
+</body>
+</html>
+
+<!-- Category: Universities -->
+<div class="category-card">
+  <h2>UNIVERSITIES</h2>
+  <div class="charm-menu">
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/1.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="1"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/1.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/1.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/2.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="2"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/2.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/2.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/3.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="3"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/3.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/3.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/4.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="4"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/4.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/4.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/5.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="5"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/5.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/5.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/6.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="6"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/6.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/6.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/7.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="7"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/7.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/7.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/8.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="8"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/8.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/8.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/9.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="9"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/9.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/9.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/10.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="10"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/10.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/10.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/11.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="11"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/11.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/11.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/12.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="12"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/12.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/12.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/44.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="44"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/44.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/44.webp"
+         loading="lazy">
+  </div>
+</div>
+
+<!-- Category: ARTISTS  -->
+<div class="category-card">
+  <h2>ARTISTS</h2>
+  <div class="charm-menu">
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/101.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="101"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/101.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/101.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/102.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="102"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/102.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/102.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/103.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="103"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/103.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/103.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/104.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="104"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/104.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/104.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/105.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="105"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/105.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/105.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/106.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="106"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/106.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/106.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/107.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="107"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/107.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/107.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/108.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="108"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/108.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/108.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/109.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="109"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/109.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/109.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/110.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="110"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/110.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/110.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/111.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="111"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/111.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/111.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/112.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="112"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/112.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/112.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/113.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="113"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/113.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/113.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/114.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="114"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/114.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/114.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/115.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="115"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/115.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/115.webp"
+         loading="lazy">
+    
+     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/116.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="116"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/116.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/116.webp"
+         loading="lazy">
+    
+      <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/117.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="117"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/117.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/117.webp"
+         loading="lazy">
+    
+  <!-- Category: Brands -->
+<div class="category-card">
+  <h2>BRANDS</h2>
+  <div class="charm-menu">
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/81.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="81"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/81.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/81.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/29.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="29"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/29.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/29.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/38.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="38"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/38.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/38.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/39.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="39"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/39.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/39.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/40.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="40"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/40.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/40.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/41.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="41"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/41.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/41.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/42.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="42"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/42.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/42.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/43.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="43"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/43.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/43.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/45.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="45"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/45.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/45.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/46.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="46"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/46.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/46.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/47.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="47"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/47.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/47.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/49.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="49"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/49.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/49.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/51.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="51"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/51.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/51.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/52.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="52"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/52.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/52.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/53.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="53"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/53.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/53.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/54.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="54"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/54.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/54.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/55.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="55"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/55.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/55.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/56.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="56"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/56.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/56.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/57.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="57"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/57.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/57.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/58.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="58"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/58.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/58.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/59.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="59"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/59.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/59.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/60.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="60"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/60.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/60.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/61.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="61"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/61.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/61.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/62.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="62"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/62.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/62.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/63.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="63"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/63.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/63.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/64.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="64"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/64.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/64.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/65.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="65"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/65.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/65.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/66.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="66"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/66.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/66.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/67.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="67"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/67.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/67.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/68.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="68"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/68.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/68.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/69.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="69"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/69.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/69.webp"
+         loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/70.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="70"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/70.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/70.webp"
+         loading="lazy">
+  </div>
+</div>
+
+
+<!-- Category: Trendy -->
+<div class="category-card">
+  <h2>TRENDY</h2>
+  <div class="charm-menu">
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/100.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="100"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/100.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/100.webp"
+         data-silver-name="S100" data-gold-name="G100" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/73.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="73"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/73.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/73.webp"
+         data-silver-name="S73" data-gold-name="G73" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/74.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="74"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/74.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/74.webp"
+         data-silver-name="S74" data-gold-name="G74" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/75.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="75"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/75.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/75.webp"
+         data-silver-name="S75" data-gold-name="G75" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/77.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="77"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/77.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/77.webp"
+         data-silver-name="S77" data-gold-name="G77" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/78.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="78"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/78.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/78.webp"
+         data-silver-name="S78" data-gold-name="G78" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/79.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="79"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/79.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/79.webp"
+         data-silver-name="S79" data-gold-name="G79" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/80.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="80"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/80.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/80.webp"
+         data-silver-name="S80" data-gold-name="G80" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/82.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="82"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/82.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/82.webp"
+         data-silver-name="S82" data-gold-name="G82" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/83.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="83"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/83.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/83.webp"
+         data-silver-name="S83" data-gold-name="G83" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/84.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="84"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/84.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/84.webp"
+         data-silver-name="S84" data-gold-name="G84" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/85.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="85"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/85.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/85.webp"
+         data-silver-name="S85" data-gold-name="G85" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/86.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="86"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/86.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/86.webp"
+         data-silver-name="S86" data-gold-name="G86" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/87.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="87"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/87.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/87.webp"
+         data-silver-name="S87" data-gold-name="G87" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/88.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="88"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/88.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/88.webp"
+         data-silver-name="S88" data-gold-name="G88" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/89.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="89"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/89.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/89.webp"
+         data-silver-name="S89" data-gold-name="G89" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/90.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="90"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/90.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/90.webp"
+         data-silver-name="S90" data-gold-name="G90" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/91.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="91"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/91.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/91.webp"
+         data-silver-name="S91" data-gold-name="G91" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/92.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="92"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/92.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/92.webp"
+         data-silver-name="S92" data-gold-name="G92" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/93.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="93"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/93.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/93.webp"
+         data-silver-name="S93" data-gold-name="G93" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/94.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="94"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/94.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/94.webp"
+         data-silver-name="S94" data-gold-name="G94" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/95.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="95"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/95.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/95.webp"
+         data-silver-name="S95" data-gold-name="G95" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/96.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="96"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/96.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/96.webp"
+         data-silver-name="S96" data-gold-name="G96" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/97.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="97"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/97.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/97.webp"
+         data-silver-name="S97" data-gold-name="G97" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/98.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="98"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/98.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/98.webp"
+         data-silver-name="S98" data-gold-name="G98" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/99.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="99"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/99.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/99.webp"
+         data-silver-name="S99" data-gold-name="G99" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/13.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="13"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/13.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/13.webp"
+         data-silver-name="S13" data-gold-name="G13" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/14.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="14"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/14.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/14.webp"
+         data-silver-name="S14" data-gold-name="G14" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/15.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="15"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/15.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/15.webp"
+         data-silver-name="S15" data-gold-name="G15" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/16.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="16"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/16.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/16.webp"
+         data-silver-name="S16" data-gold-name="G16" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/17.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="17"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/17.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/17.webp"
+         data-silver-name="S17" data-gold-name="G17" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/18.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="18"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/18.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/18.webp"
+         data-silver-name="S18" data-gold-name="G18" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/19.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="19"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/19.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/19.webp"
+         data-silver-name="S19" data-gold-name="G19" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/20.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="20"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/20.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/20.webp"
+         data-silver-name="S20" data-gold-name="G20" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/21.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="21"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/21.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/21.webp"
+         data-silver-name="S21" data-gold-name="G21" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/22.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="22"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/22.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/22.webp"
+         data-silver-name="S22" data-gold-name="G22" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/23.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="23"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/23.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/23.webp"
+         data-silver-name="S23" data-gold-name="G23" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/24.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="24"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/24.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/24.webp"
+         data-silver-name="S24" data-gold-name="G24" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/25.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="25"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/25.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/25.webp"
+         data-silver-name="S25" data-gold-name="G25" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/26.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="26"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/26.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/26.webp"
+         data-silver-name="S26" data-gold-name="G26" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/27.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="27"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/27.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/27.webp"
+         data-silver-name="S27" data-gold-name="G27" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/28.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="28"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/28.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/28.webp"
+         data-silver-name="S28" data-gold-name="G28" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/31.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="31"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/31.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/31.webp"
+         data-silver-name="S31" data-gold-name="G31" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/32.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="32"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/32.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/32.webp"
+         data-silver-name="S32" data-gold-name="G32" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/33.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="33"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/33.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/33.webp"
+         data-silver-name="S33" data-gold-name="G33" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/34.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="34"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/34.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/34.webp"
+         data-silver-name="S34" data-gold-name="G34" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/35.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="35"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/35.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/35.webp"
+         data-silver-name="S35" data-gold-name="G35" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/36.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="36"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/36.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/36.webp"
+         data-silver-name="S36" data-gold-name="G36" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/37.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="37"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/37.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/37.webp"
+         data-silver-name="S37" data-gold-name="G37" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/48.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="48"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/48.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/48.webp"
+         data-silver-name="S48" data-gold-name="G48" loading="lazy">
+
+    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/50.webp"
+         class="charm" data-price="35" data-gold-price="45" data-name="50"
+         data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/50.webp"
+         data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/50.webp"
+         data-silver-name="S50" data-gold-name="G50" loading="lazy">
+  </div>
+</div>
+
+
+
+  </div>
+
+  <script>
+    const bracelet = document.getElementById('bracelet');
+    const totalDisplay = document.getElementById('totalPrice');
+    const charmCountDisplay = document.getElementById('charmCount');
+    const codeDisplay = document.getElementById('braceletCode');
+    const copyMsg = document.getElementById('copyMsg');
+    let totalPrice = 0;
+    let selectedMetal = null;
+
+    function selectMetal(metal) {
+      selectedMetal = metal;
+
+      document.getElementById("silverBtn").classList.remove("active");
+      document.getElementById("goldBtn").classList.remove("active");
+      if (metal === "SILVER") {
+        document.getElementById("silverBtn").classList.add("active");
+      } else {
+        document.getElementById("goldBtn").classList.add("active");
+      }
+
+      // Swap charm images
+      document.querySelectorAll(".charm").forEach(charm => {
+        if (metal === "SILVER") {
+          charm.src = charm.dataset.silver;
+        } else {
+          const goldSrc = charm.dataset.gold;
+          if (goldSrc) charm.src = goldSrc;
+        }
+      });
+    }
+
+    function getCharmPrice(charmName) {
+      if (selectedMetal === "SILVER") {
+        const el = document.querySelector(`.charm[data-name="${charmName}"]`);
+        return parseInt(el.dataset.price);
+      } else if (selectedMetal === "GOLD") {
+        return 35; // adjust if gold pricing differs
+      }
+      return 0;
+    }
+
+    function addCharm(el) {
+      if (!selectedMetal) {
+        codeDisplay.textContent = "❌ Please choose SILVER or GOLD first.";
+        copyMsg.textContent = "";
+        return;
+      }
+
+      const name = el.dataset.name || "CHARM";
+      const price = getCharmPrice(name);
+
+      const container = document.createElement('div');
+      container.className = 'bracelet-item';
+      container.dataset.name = name;
+      container.dataset.price = price;
+
+      const img = document.createElement('img');
+      img.src = el.src;
+      container.appendChild(img);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = '×';
+      removeBtn.onclick = function () {
+        removeCharm(container, price);
+      };
+
+      container.appendChild(removeBtn);
+      bracelet.appendChild(container);
+
+      totalPrice += price;
+      updateTotal();
+    }
+
+    function removeCharm(container, price) {
+      bracelet.removeChild(container);
+      totalPrice -= price;
+      updateTotal();
+    }
+
+    function clearBracelet() {
+      bracelet.innerHTML = '';
+      totalPrice = 0;
+      updateTotal();
+      codeDisplay.textContent = "(Your bracelet code will appear here)";
+      copyMsg.textContent = "";
+    }
+
+    function updateTotal() {
+      totalDisplay.textContent = totalPrice;
+      charmCountDisplay.textContent = bracelet.children.length;
+    }
+
+    function generateBraceletCode() {
+      if (!selectedMetal) {
+        codeDisplay.textContent = "❌ Please choose SILVER or GOLD first.";
+        copyMsg.textContent = "";
+        return;
+      }
+
+      const charms = bracelet.querySelectorAll('.bracelet-item');
+      if (charms.length === 0) {
+        codeDisplay.textContent = "No charms selected.";
+        copyMsg.textContent = "";
+        return;
+      }
+
+      let prefix = (selectedMetal === "SILVER") ? "s" : "g";
+      let code = Array.from(charms).map(c => prefix + c.dataset.name).join(' ');
+      codeDisplay.textContent = code;
+
+      navigator.clipboard.writeText(code).then(() => {
+        copyMsg.textContent = "✅ Copied! Please paste it in the order form.";
+      }).catch(() => {
+        copyMsg.textContent = "❌ Couldn’t copy. Please copy it manually.";
+      });
+    }
+  </script>
+</body>
+</html>
