@@ -137,18 +137,21 @@ export const CHARM_CATEGORIES = {
     { id: 93, price: 50, isDangle: true },
     { id: 94, price: 50, isDangle: true },
     { id: 95, price: 50, isDangle: true },
+    // Newly uploaded silver dangle items (SDAN06-SDAN15 -> IDs 96-105)
+    { id: 96, price: 50, isDangle: true }, { id: 97, price: 50, isDangle: true }, { id: 98, price: 50, isDangle: true },
+    { id: 99, price: 50, isDangle: true }, { id: 100, price: 50, isDangle: true }, { id: 101, price: 50, isDangle: true },
+    { id: 102, price: 50, isDangle: true }, { id: 103, price: 50, isDangle: true }, { id: 104, price: 50, isDangle: true },
+    { id: 105, price: 50, isDangle: true },
   ],
   "SILVER - PREMIUM": [
-    { id: 86, price: 90 },
-    { id: 87, price: 90 },
-    { id: 88, price: 90 },
-    { id: 89, price: 90 },
-    { id: 90, price: 90 },
+    // Removed placeholder premium items (previously IDs 86-90)
     // Newly uploaded silver premium items (PRM25-PRM43)
     { id: 201, price: 90 }, { id: 202, price: 90 }, { id: 203, price: 90 }, { id: 204, price: 90 }, { id: 205, price: 90 },
     { id: 206, price: 90 }, { id: 207, price: 90 }, { id: 208, price: 90 }, { id: 209, price: 90 }, { id: 210, price: 90 },
     { id: 211, price: 90 }, { id: 212, price: 90 }, { id: 213, price: 90 }, { id: 214, price: 90 }, { id: 215, price: 90 },
-    { id: 216, price: 90 }, { id: 217, price: 90 }, { id: 218, price: 90 }, { id: 219, price: 90 }
+    { id: 216, price: 90 }, { id: 217, price: 90 }, { id: 218, price: 90 }, { id: 219, price: 90 },
+    // Newly uploaded silver-specific premium items (SPRM01-SPRM05 -> IDs 220-224)
+    { id: 220, price: 90 }, { id: 221, price: 90 }, { id: 222, price: 90 }, { id: 223, price: 90 }, { id: 224, price: 90 }
   ],
 
   // ===== GOLD SECTION =====
@@ -264,7 +267,9 @@ export const CHARM_CATEGORIES = {
   "PLAIN": [
     { id: 301, price: 20, metal: 'GOLD' },
     { id: 302, price: 20, metal: 'PINK' },
-    { id: 303, price: 15, metal: 'SILVER' }
+    { id: 303, price: 15, metal: 'SILVER' },
+    // Newly added plain charms
+    { id: 304, price: 20 }, { id: 305, price: 20 }
   ],
 };
 
@@ -317,10 +322,8 @@ export function getCharmImageUrl(id, category, metalOverride) {
   }
 
   if (charmType === CHARM_TYPES.PLAIN) {
-    // Plain charms in images/plain/ with metal-specific filename
-    if (metal === 'GOLD') return `images/plain/GPLAIN.png`;
-    if (metal === 'PINK') return `images/plain/PPLAIN.png`;
-    return `images/plain/SPLAIN.png`;
+    // Plain charms in images/plain/ — use the mapped filename when available
+    return `images/plain/${newName}.png`;
   }
   
   // Regular charms in images/[metal]/regular/[category]/
@@ -374,13 +377,15 @@ export function getCharmNewName(id) {
     54: "TEM16", 56: "TEM17", 57: "TEM18", 68: "TEM19", 69: "TEM20",
     70: "TEM21", 71: "TEM22", 75: "TEM23", 76: "TEM24", 77: "TEM25", 78: "TEM26",
     91: "SDAN01", 92: "SDAN02", 93: "SDAN03", 94: "SDAN04", 95: "SDAN05",
-    86: "PRM01", 87: "PRM02", 88: "PRM03", 89: "PRM04", 90: "PRM05"
-    ,
+    // Newly uploaded silver dangle mapping (96-105 -> SDAN06-SDAN15)
+    96: "SDAN06", 97: "SDAN07", 98: "SDAN08", 99: "SDAN09", 100: "SDAN10",
+    101: "SDAN11", 102: "SDAN12", 103: "SDAN13", 104: "SDAN14", 105: "SDAN15",
     // Gold premium uploaded (115-133 -> PRM06-PRM24)
-    115: "PRM06", 116: "PRM07", 117: "PRM08", 118: "PRM09", 119: "PRM10",
-    120: "PRM11", 121: "PRM12", 122: "PRM13", 123: "PRM14", 124: "PRM15",
-    125: "PRM16", 126: "PRM17", 127: "PRM18", 128: "PRM19", 129: "PRM20",
-    130: "PRM21", 131: "PRM22", 132: "PRM23", 133: "PRM24",
+    // Renumbered gold premium to start at GPRM01
+    115: "GPRM01", 116: "GPRM02", 117: "GPRM03", 118: "GPRM04", 119: "GPRM05",
+    120: "GPRM06", 121: "GPRM07", 122: "GPRM08", 123: "GPRM09", 124: "GPRM10",
+    125: "GPRM11", 126: "GPRM12", 127: "GPRM13", 128: "GPRM14", 129: "GPRM15",
+    130: "GPRM16", 131: "GPRM17", 132: "GPRM18", 133: "GPRM19",
     // Pink dangly uploaded (134-144 -> DAN06-DAN16)
     134: "PDAN01", 135: "PDAN02", 136: "PDAN03", 137: "PDAN04", 138: "PDAN05",
     139: "PDAN06", 140: "PDAN07", 141: "PDAN08", 142: "PDAN09", 143: "PDAN10", 144: "PDAN11",
@@ -388,11 +393,14 @@ export function getCharmNewName(id) {
     145: "GDAN01", 146: "GDAN02", 147: "GDAN03", 148: "GDAN04", 149: "GDAN05",
     150: "GDAN06", 151: "GDAN07", 152: "GDAN08", 153: "GDAN09", 154: "GDAN10",
     155: "GDAN11", 156: "GDAN12", 157: "GDAN13", 158: "GDAN14", 159: "GDAN15",
-    // Silver premium uploaded -> map new ids 201-219 to PRM25-PRM43
-    201: "PRM25", 202: "PRM26", 203: "PRM27", 204: "PRM28", 205: "PRM29",
-    206: "PRM30", 207: "PRM31", 208: "PRM32", 209: "PRM33", 210: "PRM34",
-    211: "PRM35", 212: "PRM36", 213: "PRM37", 214: "PRM38", 215: "PRM39",
-    216: "PRM40", 217: "PRM41", 218: "PRM42", 219: "PRM43",
+    // Silver premium uploaded -> map new ids 201-219 to SPRM06-SPRM24
+    201: "SPRM06", 202: "SPRM07", 203: "SPRM08", 204: "SPRM09", 205: "SPRM10",
+    206: "SPRM11", 207: "SPRM12", 208: "SPRM13", 209: "SPRM14", 210: "SPRM15",
+    211: "SPRM16", 212: "SPRM17", 213: "SPRM18", 214: "SPRM19", 215: "SPRM20",
+    216: "SPRM21", 217: "SPRM22", 218: "SPRM23", 219: "SPRM24",
+    220: "SPRM25", 221: "SPRM26", 222: "SPRM27", 223: "SPRM28", 224: "SPRM29",
+    // Newly added plain images
+    304: "VPLAIN", 305: "BPLAIN",
     // Plain images mapping
     301: "GPLAIN", 302: "PPLAIN", 303: "SPLAIN"
   };

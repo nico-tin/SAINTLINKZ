@@ -376,8 +376,8 @@ export function decodeBraceletCode() {
       return;
     }
     
-    // Get price and validate (pass metal for PLAIN charms)
-    const price = getCharmPrice(charm.id, category, charm.metal);
+    // Get price: prefer the explicit price in CHARM_CATEGORIES, otherwise fall back to pricing rules
+    let price = (charm.price !== undefined && charm.price !== null) ? charm.price : getCharmPrice(charm.id, category, charm.metal);
     if (!price || price <= 0) {
       failureDetails.push(`Charm ${itemIndex + 1}: Invalid price (ID: ${charm.id})`);
       return;
