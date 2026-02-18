@@ -145,10 +145,10 @@ export const CHARM_CATEGORIES = {
     { id: 89, price: 80 },
     { id: 90, price: 80 },
     // Newly uploaded silver premium items (PRM25-PRM43)
-    { id: 201, price: 80 }, { id: 202, price: 80 }, { id: 203, price: 80 }, { id: 204, price: 80 }, { id: 205, price: 80 },
-    { id: 206, price: 80 }, { id: 207, price: 80 }, { id: 208, price: 80 }, { id: 209, price: 80 }, { id: 210, price: 80 },
-    { id: 211, price: 80 }, { id: 212, price: 80 }, { id: 213, price: 80 }, { id: 214, price: 80 }, { id: 215, price: 80 },
-    { id: 216, price: 80 }, { id: 217, price: 80 }, { id: 218, price: 80 }, { id: 219, price: 80 }
+    { id: 201, price: 90 }, { id: 202, price: 90 }, { id: 203, price: 90 }, { id: 204, price: 90 }, { id: 205, price: 90 },
+    { id: 206, price: 90 }, { id: 207, price: 90 }, { id: 208, price: 90 }, { id: 209, price: 90 }, { id: 210, price: 90 },
+    { id: 211, price: 90 }, { id: 212, price: 90 }, { id: 213, price: 90 }, { id: 214, price: 90 }, { id: 215, price: 90 },
+    { id: 216, price: 90 }, { id: 217, price: 90 }, { id: 218, price: 90 }, { id: 219, price: 90 }
   ],
 
   // ===== GOLD SECTION =====
@@ -255,10 +255,10 @@ export const CHARM_CATEGORIES = {
   ],
   "GOLD - PREMIUM": [
     // Newly uploaded gold premium items only (PRM06-PRM24, IDs 115-133)
-    { id: 115, price: 80 }, { id: 116, price: 80 }, { id: 117, price: 80 }, { id: 118, price: 80 }, { id: 119, price: 80 },
-    { id: 120, price: 80 }, { id: 121, price: 80 }, { id: 122, price: 80 }, { id: 123, price: 80 }, { id: 124, price: 80 },
-    { id: 125, price: 80 }, { id: 126, price: 80 }, { id: 127, price: 80 }, { id: 128, price: 80 }, { id: 129, price: 80 },
-    { id: 130, price: 80 }, { id: 131, price: 80 }, { id: 132, price: 80 }, { id: 133, price: 80 }
+    { id: 115, price: 90 }, { id: 116, price: 90 }, { id: 117, price: 90 }, { id: 118, price: 90 }, { id: 119, price: 90 },
+    { id: 120, price: 90 }, { id: 121, price: 90 }, { id: 122, price: 90 }, { id: 123, price: 90 }, { id: 124, price: 90 },
+    { id: 125, price: 90 }, { id: 126, price: 90 }, { id: 127, price: 90 }, { id: 128, price: 90 }, { id: 129, price: 90 },
+    { id: 130, price: 90 }, { id: 131, price: 90 }, { id: 132, price: 90 }, { id: 133, price: 90 }
   ],
   // Single consolidated plain charms category (not separated by metal)
   "PLAIN": [
