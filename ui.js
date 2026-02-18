@@ -22,8 +22,9 @@ export function addCharm(img) {
   const price = parseFloat(img.dataset.price);
   const src = img.src;
   const categoryIndex = parseInt(img.dataset.categoryIndex) || 0;
-  
-  Bracelet.addItem({ id, price, src, category: img.dataset.category, categoryIndex });
+  const metal = img.dataset.metal; // optional, used for PLAIN items
+
+  Bracelet.addItem({ id, price, src, category: img.dataset.category, categoryIndex, metal });
   renderBracelet();
 }
 
@@ -102,6 +103,12 @@ export function renderCharmCategories() {
   const silverCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("SILVER"));
   const goldCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("GOLD"));
   const pinkCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("PINK"));
+
+  // Render SILVER section
+  // Render PLAIN section at top (single category not separated by metal)
+  if (CHARM_CATEGORIES["PLAIN"]) {
+    renderMetalSection("PLAIN", ["PLAIN"]);
+  }
 
   // Render SILVER section
   if (silverCategories.length > 0) {
@@ -213,11 +220,12 @@ function renderMetalSection(metal, categories) {
     
     charms.forEach((charm, index) => {
       const img = document.createElement('img');
-      img.src = getCharmImageUrl(charm.id, category);
+      img.src = getCharmImageUrl(charm.id, category, charm.metal);
       img.className = 'charm';
       img.dataset.name = charm.id;
       img.dataset.price = charm.price;
       img.dataset.category = category;
+      if (charm.metal) img.dataset.metal = charm.metal;
       img.dataset.categoryIndex = index;  // Store the index in the category array
       img.loading = 'lazy';
       img.alt = `Charm ${charm.id}`;
@@ -368,15 +376,15 @@ export function decodeBraceletCode() {
       return;
     }
     
-    // Get price and validate
-    const price = getCharmPrice(charm.id, category);
+    // Get price and validate (pass metal for PLAIN charms)
+    const price = getCharmPrice(charm.id, category, charm.metal);
     if (!price || price <= 0) {
       failureDetails.push(`Charm ${itemIndex + 1}: Invalid price (ID: ${charm.id})`);
       return;
     }
     
     // Get image URL and validate
-    const src = getCharmImageUrl(charm.id, category);
+    const src = getCharmImageUrl(charm.id, category, charm.metal);
     if (!src) {
       failureDetails.push(`Charm ${itemIndex + 1}: Could not generate image URL (ID: ${charm.id})`);
       return;
@@ -388,7 +396,8 @@ export function decodeBraceletCode() {
       price,
       src,
       category,
-      categoryIndex // Store the index for encoding
+      categoryIndex, // Store the index for encoding
+      metal: charm.metal // Preserve metal info for PLAIN charms
     });
     successCount++;
   });

@@ -11,7 +11,8 @@ export function addItem(item) {
     price: item.price,
     src: item.src,
     category: item.category,
-    categoryIndex: item.categoryIndex !== undefined ? item.categoryIndex : 0
+    categoryIndex: item.categoryIndex !== undefined ? item.categoryIndex : 0,
+    metal: item.metal
   });
 }
 
@@ -46,7 +47,7 @@ const CATEGORY_ORDER = [
   "DANGLE",           // 7
   "PREMIUM",          // 8
   "PINK_DANGLE",      // 9
-  "", "", "", "", "", // 10-14 (reserved)
+  "PLAIN", "", "", "", "", // 10-14 (reserved)
   ""                  // 15 (default)
 ];
 
@@ -61,8 +62,9 @@ export function generateCode() {
   let base36Code = '';
   
   braceletItems.forEach(item => {
-    // Metal: 0=Silver, 1=Gold (PINK explicitly handled via PINK_DANGLE category code)
-    const metalBit = item.category.includes("GOLD") ? 1 : 0;
+    // Metal: 0=Silver, 1=Gold. Prefer explicit `item.metal` when present (for PLAIN items),
+    // otherwise fall back to category string.
+    const metalBit = (item.metal === 'GOLD' || item.category.includes("GOLD")) ? 1 : 0;
     
     // Category: Extract base category, use PINK_DANGLE for PINK charms
     let baseCat = item.category.replace(/^SILVER - /, '').replace(/^GOLD - /, '').replace(/^PINK - /, '');
@@ -120,16 +122,17 @@ export function decodeHexCode(hexCode) {
     
     // Use CATEGORY_ORDER for consistent mapping
     const baseCategory = CATEGORY_ORDER[categoryBits];
-    
     if (!baseCategory) {
       console.error(`Invalid category index: ${categoryBits} from value ${charmValue}`);
       return [];
     }
-    
-    // Reconstruct full category name
+
+    // Reconstruct full category name. PINK_DANGLE remains special, PLAIN is a single consolidated category.
     let fullCategory;
     if (baseCategory === "PINK_DANGLE") {
       fullCategory = "PINK - DANGLE";
+    } else if (baseCategory === "PLAIN") {
+      fullCategory = "PLAIN";
     } else {
       fullCategory = (metalBit === 1 ? "GOLD - " : "SILVER - ") + baseCategory;
     }
