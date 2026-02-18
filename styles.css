@@ -384,6 +384,13 @@ button:hover {
   }
 }
 
+/* Mobile: force 4 columns for charms inside each category */
+@media (max-width: 600px) {
+  .charm-menu {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
 /* ===== ENHANCED UI STYLES ===== */
 
 .metal-section {
