@@ -1,7 +1,8 @@
 // ===== PRICING CONFIGURATION =====
 export const PRICING = {
-  SILVER: { regular: 35, dangle: 50, premium: 80 },
-  GOLD: { regular: 45, dangle: 60, premium: 80 }
+  SILVER: { regular: 35, dangle: 40, premium: 80 },
+  GOLD: { regular: 45, dangle: 50, premium: 80 },
+  PINK: { regular: 35, dangle: 50, premium: 80 }
 };
 
 // ===== CHARM TYPES =====
@@ -21,6 +22,7 @@ export const CATEGORY_INFO = {
   "I LOVE": { icon: "❤️", description: "I Love..." },
   "TEMP": { icon: "⭐", description: "Popular Picks" },
   "DANGLE": { icon: "✨", description: "Dangle Charms" },
+  "PINK - DANGLE": { icon: "🎀", description: "Pink Dangle Charms" },
   "PREMIUM": { icon: "👑", description: "Premium Car Emblems" }
 };
 
@@ -120,12 +122,19 @@ export const CHARM_CATEGORIES = {
     { id: 77, price: 35 },
     { id: 78, price: 35 },
   ],
+  "PINK - DANGLE": [
+    // Uploaded pink dangly images (DAN06-DAN16 mapped to ids 134-144)
+    { id: 134, price: 50, isDangle: true }, { id: 135, price: 50, isDangle: true }, { id: 136, price: 50, isDangle: true },
+    { id: 137, price: 50, isDangle: true }, { id: 138, price: 50, isDangle: true }, { id: 139, price: 50, isDangle: true },
+    { id: 140, price: 50, isDangle: true }, { id: 141, price: 50, isDangle: true }, { id: 142, price: 50, isDangle: true },
+    { id: 143, price: 50, isDangle: true }, { id: 144, price: 50, isDangle: true }
+  ],
   "SILVER - DANGLE": [
-    { id: 91, price: 50, isDangle: true },
-    { id: 92, price: 50, isDangle: true },
-    { id: 93, price: 50, isDangle: true },
-    { id: 94, price: 50, isDangle: true },
-    { id: 95, price: 50, isDangle: true },
+    { id: 91, price: 40, isDangle: true },
+    { id: 92, price: 40, isDangle: true },
+    { id: 93, price: 40, isDangle: true },
+    { id: 94, price: 40, isDangle: true },
+    { id: 95, price: 40, isDangle: true },
   ],
   "SILVER - PREMIUM": [
     { id: 86, price: 80 },
@@ -133,6 +142,11 @@ export const CHARM_CATEGORIES = {
     { id: 88, price: 80 },
     { id: 89, price: 80 },
     { id: 90, price: 80 },
+    // Newly uploaded silver premium items (PRM25-PRM43)
+    { id: 201, price: 80 }, { id: 202, price: 80 }, { id: 203, price: 80 }, { id: 204, price: 80 }, { id: 205, price: 80 },
+    { id: 206, price: 80 }, { id: 207, price: 80 }, { id: 208, price: 80 }, { id: 209, price: 80 }, { id: 210, price: 80 },
+    { id: 211, price: 80 }, { id: 212, price: 80 }, { id: 213, price: 80 }, { id: 214, price: 80 }, { id: 215, price: 80 },
+    { id: 216, price: 80 }, { id: 217, price: 80 }, { id: 218, price: 80 }, { id: 219, price: 80 }
   ],
 
   // ===== GOLD SECTION =====
@@ -158,6 +172,13 @@ export const CHARM_CATEGORIES = {
     { id: 82, price: 45 },
     { id: 83, price: 45 },
     { id: 84, price: 45 },
+  ],
+  "GOLD - PREMIUM": [
+    // Newly uploaded gold premium items (PRM06-PRM24)
+    { id: 115, price: 80 }, { id: 116, price: 80 }, { id: 117, price: 80 }, { id: 118, price: 80 }, { id: 119, price: 80 },
+    { id: 120, price: 80 }, { id: 121, price: 80 }, { id: 122, price: 80 }, { id: 123, price: 80 }, { id: 124, price: 80 },
+    { id: 125, price: 80 }, { id: 126, price: 80 }, { id: 127, price: 80 }, { id: 128, price: 80 }, { id: 129, price: 80 },
+    { id: 130, price: 80 }, { id: 131, price: 80 }, { id: 132, price: 80 }, { id: 133, price: 80 }
   ],
   "GOLD - BRANDS": [
     { id: 14, price: 45 },
@@ -230,11 +251,11 @@ export const CHARM_CATEGORIES = {
     { id: 78, price: 45 },
   ],
   "GOLD - DANGLE": [
-    { id: 91, price: 60, isDangle: true },
-    { id: 92, price: 60, isDangle: true },
-    { id: 93, price: 60, isDangle: true },
-    { id: 94, price: 60, isDangle: true },
-    { id: 95, price: 60, isDangle: true },
+    { id: 91, price: 50, isDangle: true },
+    { id: 92, price: 50, isDangle: true },
+    { id: 93, price: 50, isDangle: true },
+    { id: 94, price: 50, isDangle: true },
+    { id: 95, price: 50, isDangle: true },
   ],
   "GOLD - PREMIUM": [
     { id: 86, price: 80 },
@@ -254,14 +275,16 @@ export const IMAGE_GOLD_URL = 'popularimages';
  * Extract metal type from category (SILVER or GOLD)
  */
 export function getMetalFromCategory(category) {
-  return category.includes("GOLD") ? "GOLD" : "SILVER";
+  if (category.includes("GOLD")) return "GOLD";
+  if (category.includes("PINK")) return "PINK";
+  return "SILVER";
 }
 
 /**
  * Extract base category name (remove SILVER/GOLD prefix)
  */
 export function getBaseCategory(category) {
-  return category.replace(/^SILVER - /, '').replace(/^GOLD - /, '');
+  return category.replace(/^SILVER - /, '').replace(/^GOLD - /, '').replace(/^PINK - /, '');
 }
 
 /**
@@ -281,13 +304,23 @@ export function getCharmImageUrl(id, category) {
   const charmType = getCharmType(category);
   const newName = getCharmNewName(id);
   const folderName = getFolderName(category);
-  
   if (charmType === CHARM_TYPES.PREMIUM) {
+    // Original car emblems (86-90) always use CAR EMBLEMS folder
+    if (id >= 86 && id <= 90) return `premiumimages/CAR EMBLEMS/${newName}.png`;
+    // New gold premium (115-133) use GOLD PREMIUM folder
+    if (id >= 115 && id <= 133) return `premiumimages/GOLD PREMIUM/${newName}.png`;
+    // New silver premium (201-219) use SILVER PREMIUM folder
+    if (id >= 201 && id <= 219) return `premiumimages/SILVER PREMIUM/${newName}.png`;
+    // Fallback for any other premium
     return `premiumimages/CAR EMBLEMS/${newName}.png`;
   }
-  
+
   if (charmType === CHARM_TYPES.DANGLE) {
-    return `silverdanglyiamges/${newName}.png`;
+    // Use pink dangly folder when category indicates PINK, otherwise silver dangly
+    if (category.includes("PINK")) {
+      return `pinkdanglyimages/${newName}.png`;
+    }
+    return `silverdanglyimages/${newName}.png`;
   }
   
   return `popularimages/${metal}/${folderName}/${newName}.png`;
@@ -299,10 +332,10 @@ export function getCharmImageUrl(id, category) {
 export function getCharmPrice(id, category) {
   const metal = getMetalFromCategory(category);
   const charmType = getCharmType(category);
-  
-  const priceKey = metal === "GOLD" ? "GOLD" : "SILVER";
+
+  const priceKey = metal === "GOLD" ? "GOLD" : (metal === 'PINK' ? 'PINK' : 'SILVER');
   const typeKey = charmType === CHARM_TYPES.DANGLE ? "dangle" : (charmType === CHARM_TYPES.PREMIUM ? "premium" : "regular");
-  
+
   return PRICING[priceKey]?.[typeKey] || 0;
 }
 
@@ -310,7 +343,7 @@ export function getCharmPrice(id, category) {
  * Get all categories organized by metal type
  */
 export function getCategoriesByMetal(metal) {
-  const prefix = metal === "GOLD" ? "GOLD - " : "SILVER - ";
+  const prefix = metal === "GOLD" ? "GOLD - " : (metal === 'PINK' ? 'PINK - ' : 'SILVER - ');
   return Object.keys(CHARM_CATEGORIES).filter(cat => cat.startsWith(prefix));
 }
 
@@ -352,6 +385,20 @@ export function getCharmNewName(id) {
     70: "TEM21", 71: "TEM22", 75: "TEM23", 76: "TEM24", 77: "TEM25", 78: "TEM26",
     91: "DAN01", 92: "DAN02", 93: "DAN03", 94: "DAN04", 95: "DAN05",
     86: "PRM01", 87: "PRM02", 88: "PRM03", 89: "PRM04", 90: "PRM05"
+    ,
+    // Gold premium uploaded (115-133 -> PRM06-PRM24)
+    115: "PRM06", 116: "PRM07", 117: "PRM08", 118: "PRM09", 119: "PRM10",
+    120: "PRM11", 121: "PRM12", 122: "PRM13", 123: "PRM14", 124: "PRM15",
+    125: "PRM16", 126: "PRM17", 127: "PRM18", 128: "PRM19", 129: "PRM20",
+    130: "PRM21", 131: "PRM22", 132: "PRM23", 133: "PRM24",
+    // Pink dangly uploaded (134-144 -> DAN06-DAN16)
+    134: "DAN06", 135: "DAN07", 136: "DAN08", 137: "DAN09", 138: "DAN10",
+    139: "DAN11", 140: "DAN12", 141: "DAN13", 142: "DAN14", 143: "DAN15", 144: "DAN16",
+    // Silver premium uploaded -> map new ids 201-219 to PRM25-PRM43
+    201: "PRM25", 202: "PRM26", 203: "PRM27", 204: "PRM28", 205: "PRM29",
+    206: "PRM30", 207: "PRM31", 208: "PRM32", 209: "PRM33", 210: "PRM34",
+    211: "PRM35", 212: "PRM36", 213: "PRM37", 214: "PRM38", 215: "PRM39",
+    216: "PRM40", 217: "PRM41", 218: "PRM42", 219: "PRM43"
   };
   return idMapping[id] || id.toString();
 }

@@ -46,7 +46,8 @@ const CATEGORY_MAP = {
   "I LOVE": "I",
   "TEMP": "T",
   "DANGLE": "D",
-  "PREMIUM": "P"
+  "PREMIUM": "P",
+  "PINK_DANGLE": "K"  // Special code for PINK - DANGLE
 };
 
 // Reverse mapping for decoding
@@ -59,7 +60,8 @@ const REVERSE_CATEGORY_MAP = {
   "I": "I LOVE",
   "T": "TEMP",
   "D": "DANGLE",
-  "P": "PREMIUM"
+  "P": "PREMIUM",
+  "K": "PINK_DANGLE"  // Decode back to PINK_DANGLE
 };
 
 export function generateCode() {
@@ -74,11 +76,17 @@ export function generateCode() {
   let base36Code = '';
   
   braceletItems.forEach(item => {
-    // Metal: 0=Silver, 1=Gold
+    // Metal: 0=Silver, 1=Gold (PINK explicitly handled via PINK_DANGLE category code)
     const metalBit = item.category.includes("GOLD") ? 1 : 0;
     
-    // Category: 0-15 (A-P maps to 0-15)
-    const baseCat = item.category.replace(/^SILVER - /, '').replace(/^GOLD - /, '');
+    // Category: Extract base category, use PINK_DANGLE for PINK charms
+    let baseCat = item.category.replace(/^SILVER - /, '').replace(/^GOLD - /, '').replace(/^PINK - /, '');
+    
+    // If it's a PINK charm, use the PINK_DANGLE code
+    if (item.category.includes("PINK")) {
+      baseCat = "PINK_DANGLE";
+    }
+    
     const catIndex = Object.keys(CATEGORY_MAP).indexOf(baseCat);
     const categoryBits = catIndex !== -1 ? catIndex : 15; // Default to P if not found
     
@@ -126,7 +134,12 @@ export function decodeHexCode(hexCode) {
     if (!baseCategory) return [];
     
     // Reconstruct full category name
-    const fullCategory = (metalBit === 1 ? "GOLD - " : "SILVER - ") + baseCategory;
+    let fullCategory;
+    if (baseCategory === "PINK_DANGLE") {
+      fullCategory = "PINK - DANGLE";
+    } else {
+      fullCategory = (metalBit === 1 ? "GOLD - " : "SILVER - ") + baseCategory;
+    }
     
     decodedItems.push({
       category: fullCategory,

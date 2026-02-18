@@ -101,17 +101,26 @@ export function renderCharmCategories() {
   // Group categories by metal type for better UI organization
   const silverCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("SILVER"));
   const goldCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("GOLD"));
-  
+  const pinkCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("PINK"));
+
   // Render SILVER section
   if (silverCategories.length > 0) {
     renderMetalSection("SILVER", silverCategories);
   }
-  
-  // Add visual separator
+
+  // Render PINK section (between metals)
+  if (pinkCategories.length > 0) {
+    const separator1 = document.createElement('div');
+    separator1.style.cssText = 'margin: 30px 0; border-top: 2px dashed #aaa; opacity: 0.3;';
+    charmsContainer.appendChild(separator1);
+    renderMetalSection("PINK", pinkCategories);
+  }
+
+  // Add visual separator before GOLD
   const separator = document.createElement('div');
   separator.style.cssText = 'margin: 40px 0; border-top: 3px solid #76023c; opacity: 0.3;';
   charmsContainer.appendChild(separator);
-  
+
   // Render GOLD section
   if (goldCategories.length > 0) {
     renderMetalSection("GOLD", goldCategories);
