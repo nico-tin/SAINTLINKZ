@@ -6,16 +6,13 @@ export function getBraceletItems() {
 }
 
 export function addItem(item) {
-  // Ensure item has all required properties
-  const completeItem = {
+  braceletItems.push({
     id: item.id,
     price: item.price,
     src: item.src,
     category: item.category,
-    categoryIndex: item.categoryIndex !== undefined ? item.categoryIndex : 0, // Position in category array
-    addedAt: new Date().getTime() // Track when item was added
-  };
-  braceletItems.push(completeItem);
+    categoryIndex: item.categoryIndex !== undefined ? item.categoryIndex : 0
+  });
 }
 
 export function removeItem(index) {
@@ -36,42 +33,30 @@ export function getCharmCount() {
   return braceletItems.length;
 }
 
-// Category to single-character mapping for hex encoding
-const CATEGORY_MAP = {
-  "ALBUMS & ARTIST": "A",
-  "BRANDS": "B",
-  "COQUETTE": "C",
-  "COUPLE": "U",
-  "F1": "F",
-  "I LOVE": "I",
-  "TEMP": "T",
-  "DANGLE": "D",
-  "PREMIUM": "P",
-  "PINK_DANGLE": "K"  // Special code for PINK - DANGLE
-};
+// Ordered category list - MUST be consistent between encoder and decoder
+// Index must match between generateCode() and decodeHexCode()
+const CATEGORY_ORDER = [
+  "ALBUMS & ARTIST",  // 0
+  "BRANDS",           // 1
+  "COQUETTE",         // 2
+  "COUPLE",           // 3
+  "F1",               // 4
+  "I LOVE",           // 5
+  "TEMP",             // 6
+  "DANGLE",           // 7
+  "PREMIUM",          // 8
+  "PINK_DANGLE",      // 9
+  "", "", "", "", "", // 10-14 (reserved)
+  ""                  // 15 (default)
+];
 
-// Reverse mapping for decoding
-const REVERSE_CATEGORY_MAP = {
-  "A": "ALBUMS & ARTIST",
-  "B": "BRANDS",
-  "C": "COQUETTE",
-  "U": "COUPLE",
-  "F": "F1",
-  "I": "I LOVE",
-  "T": "TEMP",
-  "D": "DANGLE",
-  "P": "PREMIUM",
-  "K": "PINK_DANGLE"  // Decode back to PINK_DANGLE
-};
+
 
 export function generateCode() {
   if (braceletItems.length === 0) return '';
   
-  // Maximum compression: Fixed 2-char Base36 per charm
-  // Each charm = fixed Base36 value (0-1295)
-  // Structure: (metal:1bit << 10) | (category:4bits << 6) | (index:6bits)
-  // Result: 2 Base36 chars per charm (00-ZZ)
-  // Example: A5B7C2 = 3 charms
+  // Compress bracelet: 2 Base36 chars per charm
+  // Bits: (metal:1 << 9) | (category:4 << 5) | (index:5)
   
   let base36Code = '';
   
@@ -87,14 +72,18 @@ export function generateCode() {
       baseCat = "PINK_DANGLE";
     }
     
-    const catIndex = Object.keys(CATEGORY_MAP).indexOf(baseCat);
-    const categoryBits = catIndex !== -1 ? catIndex : 15; // Default to P if not found
+    // Find index in CATEGORY_ORDER (must be consistent with decoder!)
+    const categoryBits = CATEGORY_ORDER.indexOf(baseCat);
+    if (categoryBits === -1) {
+      console.warn(`Unknown category: ${baseCat}, using PREMIUM (8)`);
+    }
     
-    // Index: 0-63 (position in category, fits 6 bits)
-    const indexBits = (item.categoryIndex !== undefined ? item.categoryIndex : (item.id & 0xFF)) & 0x3F;
+    // Index: 0-31 (position in category, fits 5 bits)
+    // Max category size is SILVER-TEMP with 26 items, so 5 bits (0-31) is sufficient
+    const indexBits = (item.categoryIndex !== undefined ? item.categoryIndex : (item.id & 0xFF)) & 0x1F;
     
-    // Combine into single 11-bit value (0-1295)
-    const charmValue = (metalBit << 10) | (categoryBits << 6) | indexBits;
+    // Combine into single 10-bit value (0-1023, fits in 2 base36 digits)
+    const charmValue = (metalBit << 9) | (Math.max(0, categoryBits) << 5) | indexBits;
     
     // Convert to Base36 with fixed 2 chars (pad with 0)
     base36Code += charmValue.toString(36).toUpperCase().padStart(2, '0');
@@ -106,8 +95,6 @@ export function generateCode() {
 export function decodeHexCode(hexCode) {
   if (!hexCode || typeof hexCode !== 'string') return [];
   
-  // Fixed 2-char Base36 decoder: reverse of generateCode
-  // Each 2 Base36 chars = 1 charm (no ambiguity)
   hexCode = hexCode.toUpperCase().replace(/\s/g, '');
   
   // Validate: only Base36 chars (0-9, A-Z) and must be even length
@@ -120,18 +107,24 @@ export function decodeHexCode(hexCode) {
     const twoChar = hexCode.substr(i, 2);
     const charmValue = parseInt(twoChar, 36);
     
-    if (isNaN(charmValue) || charmValue > 1295) return []; // Invalid value
+    // Allow up to 10-bit max value (1023): (1<<9)|(15<<5)|31 = 1023
+    if (isNaN(charmValue) || charmValue > 1023) {
+      console.error(`Invalid charm value at position ${i}: ${twoChar} (${charmValue})`);
+      return []; // Invalid value
+    }
     
-    // Extract components
-    const metalBit = (charmValue >> 10) & 1;
-    const categoryBits = (charmValue >> 6) & 15;
-    const indexBits = charmValue & 63;
+    // Extract components using FIXED bit positions (10-bit total)
+    const metalBit = (charmValue >> 9) & 1;       // Bit 9: 0=SILVER, 1=GOLD
+    const categoryBits = (charmValue >> 5) & 15;   // Bits 8-5: 0-15 for category
+    const indexBits = charmValue & 31;             // Bits 4-0: 0-31 for charm index
     
-    // Reverse category mapping
-    const categoryKeys = Object.keys(CATEGORY_MAP);
-    const baseCategory = categoryKeys[categoryBits] || categoryKeys[15];
+    // Use CATEGORY_ORDER for consistent mapping
+    const baseCategory = CATEGORY_ORDER[categoryBits];
     
-    if (!baseCategory) return [];
+    if (!baseCategory) {
+      console.error(`Invalid category index: ${categoryBits} from value ${charmValue}`);
+      return [];
+    }
     
     // Reconstruct full category name
     let fullCategory;
@@ -150,25 +143,4 @@ export function decodeHexCode(hexCode) {
   return decodedItems;
 }
 
-/**
- * Get breakdown of items by metal type
- */
-export function getItemsByMetal(metal) {
-  return braceletItems.filter(item => 
-    item.category && item.category.includes(metal)
-  );
-}
 
-/**
- * Get breakdown of items by category
- */
-export function getItemsByCategory(category) {
-  return braceletItems.filter(item => item.category === category);
-}
-
-/**
- * Calculate total price for specific metal type
- */
-export function getTotalPriceByMetal(metal) {
-  return getItemsByMetal(metal).reduce((sum, item) => sum + (item.price || 0), 0);
-}

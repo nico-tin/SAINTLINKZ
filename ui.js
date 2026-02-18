@@ -307,7 +307,6 @@ export function init() {
   document.getElementById('generateBtn').addEventListener('click', generateBraceletCode);
   document.getElementById('decodeBtn').addEventListener('click', decodeBraceletCode);
   
-  // Allow Enter key in input to trigger decode
   document.getElementById('hexCodeInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') decodeBraceletCode();
   });
@@ -339,48 +338,85 @@ export function decodeBraceletCode() {
   // Clear current bracelet
   Bracelet.clearBracelet();
   
-  // Add decoded items
+  // Add decoded items with detailed validation
   let successCount = 0;
-  decodedItems.forEach(decodedItem => {
+  let failureDetails = [];
+  
+  decodedItems.forEach((decodedItem, itemIndex) => {
     const category = decodedItem.category;
     const categoryIndex = decodedItem.categoryIndex;
     
-    // Get the charms array for this category
-    if (CHARM_CATEGORIES[category] && categoryIndex < CHARM_CATEGORIES[category].length) {
-      const charm = CHARM_CATEGORIES[category][categoryIndex];
-      if (charm) {
-        const price = getCharmPrice(charm.id, category);
-        const src = getCharmImageUrl(charm.id, category);
-        
-        if (src) {
-          Bracelet.addItem({
-            id: charm.id,
-            price,
-            src,
-            category,
-            categoryIndex // Store the index for encoding
-          });
-          successCount++;
-        }
-      }
+    // Validate category exists
+    if (!CHARM_CATEGORIES[category]) {
+      failureDetails.push(`Charm ${itemIndex + 1}: Category "${category}" not found`);
+      return;
     }
+    
+    const categoryCharms = CHARM_CATEGORIES[category];
+    
+    // Validate index within bounds
+    if (categoryIndex >= categoryCharms.length) {
+      failureDetails.push(`Charm ${itemIndex + 1}: Index ${categoryIndex} out of range for ${category} (${categoryCharms.length} items)`);
+      return;
+    }
+    
+    const charm = categoryCharms[categoryIndex];
+    
+    // Validate charm exists
+    if (!charm || !charm.id) {
+      failureDetails.push(`Charm ${itemIndex + 1}: Invalid charm data at ${category}[${categoryIndex}]`);
+      return;
+    }
+    
+    // Get price and validate
+    const price = getCharmPrice(charm.id, category);
+    if (!price || price <= 0) {
+      failureDetails.push(`Charm ${itemIndex + 1}: Invalid price (ID: ${charm.id})`);
+      return;
+    }
+    
+    // Get image URL and validate
+    const src = getCharmImageUrl(charm.id, category);
+    if (!src) {
+      failureDetails.push(`Charm ${itemIndex + 1}: Could not generate image URL (ID: ${charm.id})`);
+      return;
+    }
+    
+    // All validations passed - add the charm
+    Bracelet.addItem({
+      id: charm.id,
+      price,
+      src,
+      category,
+      categoryIndex // Store the index for encoding
+    });
+    successCount++;
   });
   
   if (successCount === 0) {
-    decodeMsg.textContent = 'Could not restore any charms from this code';
+    decodeMsg.textContent = failureDetails.length > 0 
+      ? `Failed: ${failureDetails[0]}`
+      : 'Could not restore any charms from this code';
     decodeMsg.style.color = 'red';
     renderBracelet();
     return;
   }
   
-  decodeMsg.textContent = `✓ Restored ${successCount} charm${successCount !== 1 ? 's' : ''} successfully!`;
+  // Build success message
+  let message = `✓ Restored ${successCount} charm${successCount !== 1 ? 's' : ''}`;
+  if (failureDetails.length > 0) {
+    message += ` (${failureDetails.length} failed)`;
+  }
+  message += '!';
+  
+  decodeMsg.textContent = message;
   decodeMsg.style.color = 'green';
   
   renderBracelet();
   hexInput.value = '';
   
-  // Clear message after 3 seconds
+  // Clear message after 4 seconds
   setTimeout(() => {
     decodeMsg.textContent = '';
-  }, 3000);
+  }, 4000);
 }
