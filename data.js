@@ -139,11 +139,11 @@ export const CHARM_CATEGORIES = {
     { id: 95, price: 50, isDangle: true },
   ],
   "SILVER - PREMIUM": [
-    { id: 86, price: 80 },
-    { id: 87, price: 80 },
-    { id: 88, price: 80 },
-    { id: 89, price: 80 },
-    { id: 90, price: 80 },
+    { id: 86, price: 90 },
+    { id: 87, price: 90 },
+    { id: 88, price: 90 },
+    { id: 89, price: 90 },
+    { id: 90, price: 90 },
     // Newly uploaded silver premium items (PRM25-PRM43)
     { id: 201, price: 90 }, { id: 202, price: 90 }, { id: 203, price: 90 }, { id: 204, price: 90 }, { id: 205, price: 90 },
     { id: 206, price: 90 }, { id: 207, price: 90 }, { id: 208, price: 90 }, { id: 209, price: 90 }, { id: 210, price: 90 },
