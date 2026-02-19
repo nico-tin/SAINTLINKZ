@@ -422,6 +422,11 @@ function renderMetalSection(metal, categories) {
         tooltipTimeout = setTimeout(() => {
           tooltip.style.opacity = '0';
         }, 3000);
+        
+        // Add charm if in stock
+        if (inStock && remainingSlots > 0) {
+          addCharm(img);
+        }
       });
       
       img.addEventListener('touchstart', () => {
@@ -431,10 +436,6 @@ function renderMetalSection(metal, categories) {
           tooltip.style.opacity = '0';
         }, 3000);
       });
-      
-      if (inStock && remainingSlots > 0) {
-        img.addEventListener('click', () => addCharm(img));
-      }
       
       menu.appendChild(imgWrapper);
     });
