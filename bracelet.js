@@ -34,6 +34,10 @@ export function getCharmCount() {
   return braceletItems.length;
 }
 
+export function countCharmById(charmId) {
+  return braceletItems.filter(item => item.id === charmId).length;
+}
+
 // Ordered category list - MUST be consistent between encoder and decoder
 // Index must match between generateCode() and decodeHexCode()
 const CATEGORY_ORDER = [

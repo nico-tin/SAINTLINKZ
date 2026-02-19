@@ -1,3 +1,27 @@
+// ===== INVENTORY SYSTEM =====
+let inventoryData = {};
+
+export async function loadInventory() {
+  try {
+    const response = await fetch('./inventory.json');
+    const data = await response.json();
+    inventoryData = data.charms || {};
+  } catch (error) {
+    console.warn('Could not load inventory.json:', error);
+    // Fallback: all charms in stock
+    inventoryData = {};
+  }
+}
+
+export function getCharmStock(id) {
+  const id_str = id.toString();
+  return inventoryData[id_str] !== undefined ? inventoryData[id_str] : 10;
+}
+
+export function isCharmInStock(id) {
+  return getCharmStock(id) > 0;
+}
+
 // ===== PRICING CONFIGURATION =====
 export const PRICING = {
   SILVER: { regular: 35, dangle: 50, premium: 90, plain: 15 },

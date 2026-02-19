@@ -583,6 +583,36 @@ button:focus {
   }
 }
 
+/* ===== OUT OF STOCK STYLING ===== */
+.charm.out-of-stock {
+  opacity: 0.4;
+  filter: grayscale(100%);
+  cursor: not-allowed !important;
+}
+
+.charm.out-of-stock:hover {
+  transform: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.charm.out-of-stock::after {
+  content: "Out of Stock";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+
 /* ===== MOBILE RESPONSIVE GRID FIXES ===== */
 
 @media (max-width: 768px) {

@@ -5,7 +5,10 @@ import {
   getCategoryInfo,
   getCharmCountInCategory,
   getMetalFromCategory,
-  getBaseCategory
+  getBaseCategory,
+  loadInventory,
+  getCharmStock,
+  isCharmInStock
 } from './data.js';
 import * as Bracelet from './bracelet.js';
 
@@ -19,6 +22,21 @@ const charmsContainer = document.getElementById('charmsContainer');
 
 export function addCharm(img) {
   const id = parseInt(img.dataset.name);
+  const stock = getCharmStock(id);
+  
+  // Check if charm is in stock
+  if (!isCharmInStock(id)) {
+    alert('This charm is out of stock!');
+    return;
+  }
+  
+  // Check if we've already added the maximum allowed
+  const currentCount = Bracelet.countCharmById(id);
+  if (currentCount >= stock) {
+    alert(`You can only add ${stock} of this charm to your bracelet!`);
+    return;
+  }
+  
   const price = parseFloat(img.dataset.price);
   const src = img.src;
   const categoryIndex = parseInt(img.dataset.categoryIndex) || 0;
@@ -51,7 +69,10 @@ export function renderBracelet() {
       const btn = document.createElement('button');
       btn.innerText = '×';
       btn.classList.add('remove-btn');
-      btn.onclick = () => removeCharm(index);
+      btn.onclick = () => {
+        removeCharm(index);
+        renderCharmCategories(); // Update charm grid tooltips
+      };
       
       itemDiv.appendChild(img);
       itemDiv.appendChild(btn);
@@ -60,6 +81,7 @@ export function renderBracelet() {
   }
   
   updateDisplay();
+  renderCharmCategories(); // Update charm grid with new stock counts
 }
 
 function updateDisplay() {
@@ -230,12 +252,17 @@ function renderMetalSection(metal, categories) {
       img.loading = 'lazy';
       img.alt = `Charm ${charm.id}`;
       
+      // Check if charm is in stock
+      const inStock = isCharmInStock(charm.id);
+      const stock = getCharmStock(charm.id);
+      const currentCount = Bracelet.countCharmById(charm.id);
+      const remainingSlots = stock - currentCount;
+      
       // Enhanced charm styling
-      img.style.cssText = `
+      let baseStyles = `
         width: 60px;
         height: 60px;
         object-fit: contain;
-        cursor: pointer;
         padding: 4px;
         border-radius: 8px;
         transition: all 0.2s ease;
@@ -243,33 +270,60 @@ function renderMetalSection(metal, categories) {
         border: 2px solid transparent;
       `;
       
+      if (!inStock) {
+        baseStyles += `
+          opacity: 0.4;
+          cursor: not-allowed;
+          filter: grayscale(100%);
+        `;
+      } else if (remainingSlots === 0) {
+        baseStyles += `
+          opacity: 0.5;
+          cursor: not-allowed;
+          filter: brightness(0.8);
+        `;
+      } else {
+        baseStyles += `
+          cursor: pointer;
+        `;
+      }
+      
+      img.style.cssText = baseStyles;
+      
       img.addEventListener('mouseenter', () => {
-        img.style.cssText += 'transform: scale(1.15); border-color: #76023c; box-shadow: 0 4px 8px rgba(118, 2, 60, 0.3);';
+        if (inStock && remainingSlots > 0) {
+          img.style.cssText = baseStyles + 'transform: scale(1.15); border-color: #76023c; box-shadow: 0 4px 8px rgba(118, 2, 60, 0.3);';
+        }
       });
       
       img.addEventListener('mouseleave', () => {
-        img.style.cssText = `
-          width: 60px;
-          height: 60px;
-          object-fit: contain;
-          cursor: pointer;
-          padding: 4px;
-          border-radius: 8px;
-          transition: all 0.2s ease;
-          background: #f5f5f5;
-          border: 2px solid transparent;
-        `;
+        img.style.cssText = baseStyles;
       });
       
       // Tooltip on hover
       const tooltip = document.createElement('div');
       tooltip.className = 'charm-tooltip';
+      
+      let tooltipText = '';
+      let tooltipColor = '#76023c';
+      
+      if (!inStock) {
+        tooltipText = 'Out of Stock';
+        tooltipColor = '#999';
+      } else if (remainingSlots === 0) {
+        tooltipText = 'Max Reached';
+        tooltipColor = '#ff6b6b';
+      } else {
+        tooltipText = `₱${charm.price} (${remainingSlots} left)`;
+        tooltipColor = '#76023c';
+      }
+      
       tooltip.style.cssText = `
         position: absolute;
         bottom: 100%;
         left: 50%;
         transform: translateX(-50%);
-        background: #76023c;
+        background: ${tooltipColor};
         color: #feffe2;
         padding: 6px 10px;
         border-radius: 4px;
@@ -281,7 +335,7 @@ function renderMetalSection(metal, categories) {
         z-index: 10;
         margin-bottom: 8px;
       `;
-      tooltip.textContent = `₱${charm.price}`;
+      tooltip.textContent = tooltipText;
       
       const imgWrapper = document.createElement('div');
       imgWrapper.style.cssText = 'position: relative;';
@@ -296,7 +350,9 @@ function renderMetalSection(metal, categories) {
         tooltip.style.opacity = '0';
       });
       
-      img.addEventListener('click', () => addCharm(img));
+      if (inStock && remainingSlots > 0) {
+        img.addEventListener('click', () => addCharm(img));
+      }
       
       menu.appendChild(imgWrapper);
     });
@@ -310,7 +366,10 @@ function renderMetalSection(metal, categories) {
 }
 
 // Event listeners
-export function init() {
+export async function init() {
+  // Load inventory first
+  await loadInventory();
+  
   document.getElementById('clearBtn').addEventListener('click', clearBracelet);
   document.getElementById('generateBtn').addEventListener('click', generateBraceletCode);
   document.getElementById('decodeBtn').addEventListener('click', decodeBraceletCode);
