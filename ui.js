@@ -342,12 +342,94 @@ function renderMetalSection(metal, categories) {
       imgWrapper.appendChild(img);
       imgWrapper.appendChild(tooltip);
       
+      // Add stock badge for mobile visibility
+      if (!inStock) {
+        const outOfStockBadge = document.createElement('div');
+        outOfStockBadge.style.cssText = `
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background: #999;
+          color: white;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.65rem;
+          font-weight: bold;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        `;
+        outOfStockBadge.textContent = '0';
+        imgWrapper.appendChild(outOfStockBadge);
+      } else if (remainingSlots === 0) {
+        const maxBadge = document.createElement('div');
+        maxBadge.style.cssText = `
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background: #ff6b6b;
+          color: white;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.65rem;
+          font-weight: bold;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        `;
+        maxBadge.textContent = '✓';
+        imgWrapper.appendChild(maxBadge);
+      } else if (stock < 10) {
+        // Only show badge if stock is low (less than 10)
+        const stockBadge = document.createElement('div');
+        stockBadge.style.cssText = `
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background: #76023c;
+          color: #feffe2;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          font-weight: bold;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        `;
+        stockBadge.textContent = remainingSlots;
+        imgWrapper.appendChild(stockBadge);
+      }
+      
       img.addEventListener('mouseenter', () => {
         tooltip.style.opacity = '1';
       });
       
       img.addEventListener('mouseleave', () => {
         tooltip.style.opacity = '0';
+      });
+      
+      // Show tooltip on touch/click for mobile - auto-dismiss after 3 seconds
+      let tooltipTimeout;
+      img.addEventListener('click', () => {
+        tooltip.style.opacity = '1';
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = setTimeout(() => {
+          tooltip.style.opacity = '0';
+        }, 3000);
+      });
+      
+      img.addEventListener('touchstart', () => {
+        tooltip.style.opacity = '1';
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = setTimeout(() => {
+          tooltip.style.opacity = '0';
+        }, 3000);
       });
       
       if (inStock && remainingSlots > 0) {
