@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SAINTLINKZ - Build Your Bracelet</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="resources/LOGO.png" type="image/png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -29,12 +30,12 @@
   <main class="builder-container" role="main">
     <div class="controls">
       <button id="clearBtn" aria-label="Clear all items from bracelet">Clear Bracelet</button>
-      <button id="generateBtn" aria-label="Generate and copy bracelet code">Copy Bracelet Code</button>
+      <button id="generateBtn" aria-label="Generate and copy bracelet code">Generate Bracelet Code</button>
     </div>
 
     <div id="braceletCodeBox">
       <strong>Copy your bracelet code and send it to us ♥</strong>
-      <div id="braceletCode" aria-label="Your encoded bracelet code" role="textbox" tabindex="0">...</div>
+      <div id="braceletCode" aria-label="Your encoded bracelet code" role="textbox" tabindex="0">Your bracelet code will appear here</div>
       <div id="copyMsg" aria-live="polite" role="status"></div>
     </div>
 
@@ -54,6 +55,9 @@
     <div style="text-align: center; margin-bottom: 10px;">
       <h1 style="font-size: 1.4rem; text-transform: uppercase; color: #000000;">Choose your charms here:</h1>
     </div>
+
+    <!-- Metal filter controls (All / Gold / Silver / Pink / Plain) -->
+    <div id="metalFilters" class="metal-buttons" aria-label="Filter charms by metal" style="margin: 20px 0; text-align: center;"></div>
 
     <!-- Charm Categories Container -->
     <div id="charmsContainer" role="region" aria-label="Charm selection categories"></div>

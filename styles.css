@@ -134,6 +134,15 @@ header img {
   display: flex;
 }
 
+/* Ensure remove button is always on top of images */
+.remove-btn {
+  z-index: 50;
+}
+
+.bracelet-item img {
+  z-index: 1;
+}
+
 button {
   margin: 5px;
   padding: 10px 15px;
@@ -173,6 +182,54 @@ button:focus {
 .metal-buttons button.active {
   background-color: #5a1b15;
   border: 2px solid #76023c;
+}
+
+/* Insert indicator visuals */
+.bracelet-item.insert-before::before,
+.bracelet-item.insert-after::after {
+  content: '';
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  width: 4px;
+  background: #76023c;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(118,2,60,0.3);
+  transition: all 0.12s ease;
+  z-index: 40;
+}
+
+.bracelet-item.insert-before {
+  transform: translateX(8px);
+}
+.bracelet-item.insert-before::before {
+  left: -8px;
+}
+
+.bracelet-item.insert-after {
+  transform: translateX(-8px);
+}
+.bracelet-item.insert-after::after {
+  right: -8px;
+}
+
+/* Show remove button only when item has .show-remove; hide during dragging */
+.bracelet-item.show-remove .remove-btn {
+  display: flex;
+}
+
+.bracelet-item.dragging .remove-btn {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .bracelet-item.show-remove .remove-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    top: -6px;
+    right: -6px;
+  }
 }
 
 .controls {
@@ -509,6 +566,22 @@ button:focus {
   background: #f0f0f0;
 }
 
+.charm.out-of-stock {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+
+.charm.max-reached {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: brightness(0.8);
+}
+
+.charm-wrapper {
+  position: relative;
+}
+
 .charm-tooltip {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -581,6 +654,129 @@ button:focus {
     width: 50px;
     height: 50px;
   }
+}
+
+/* Drag and drop visuals for bracelet items */
+.bracelet-item.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+
+.bracelet-item.drag-over {
+  outline: 3px dashed rgba(118,2,60,0.9);
+  border-radius: 6px;
+}
+
+/* Metal filter button group styling */
+.metal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.metal-buttons button {
+  background: #fff9e6;
+  color: #76023c;
+  border: 2px solid #76023c;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.metal-buttons button:hover {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+.metal-buttons button.active {
+  background: #76023c;
+  color: #feffe2;
+  box-shadow: 0 4px 8px rgba(118, 2, 60, 0.3);
+}
+
+/* Category card header section */
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.category-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.category-info {
+  flex: 1;
+}
+
+.category-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #76023c;
+  font-weight: 700;
+}
+
+.category-description {
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+.category-count-badge {
+  background: #76023c;
+  color: #feffe2;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* Stock badge on charm */
+.charm-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.stock-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  color: white;
+}
+
+.stock-badge.low {
+  background: #76023c;
+}
+
+.stock-badge.max {
+  background: #ff6b6b;
+  color: white;
+}
+
+.stock-badge.out {
+  background: #999;
 }
 
 /* ===== OUT OF STOCK STYLING ===== */

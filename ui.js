@@ -19,6 +19,159 @@ const charmCountEl = document.getElementById('charmCount');
 const braceletCodeEl = document.getElementById('braceletCode');
 const copyMsgEl = document.getElementById('copyMsg');
 const charmsContainer = document.getElementById('charmsContainer');
+const metalFiltersContainer = document.getElementById('metalFilters');
+
+// Current filter state: 'ALL' | 'GOLD' | 'SILVER' | 'PINK' | 'PLAIN'
+let currentMetalFilter = 'ALL';
+// Track current drag hover target to avoid repeated class toggles (prevents flicker)
+let currentDragTarget = { el: null, mode: null };
+
+function clearInsertClasses(el) {
+  if (!el) return;
+  el.classList.remove('drag-over', 'insert-before', 'insert-after', 'drop-center');
+}
+
+/**
+ * Setup mobile touch drag handlers for a bracelet item
+ */
+function setupTouchHandlers(itemDiv, srcIndex) {
+  let touchState = null;
+
+  function findBraceletItemElement(el) {
+    while (el && !el.classList.contains('bracelet-item')) el = el.parentElement;
+    return el;
+  }
+
+  itemDiv.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    touchState = {
+      srcIndex,
+      ghost: null,
+      holdTimer: null,
+      dragging: false,
+      startX: touch.clientX,
+      startY: touch.clientY
+    };
+
+    touchState.holdTimer = setTimeout(() => {
+      document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
+      const ghost = itemDiv.cloneNode(true);
+      ghost.style.position = 'fixed';
+      ghost.style.left = touch.clientX + 'px';
+      ghost.style.top = touch.clientY + 'px';
+      ghost.style.transform = 'translate(-50%, -50%) scale(1.05)';
+      ghost.style.pointerEvents = 'none';
+      ghost.style.opacity = '0.95';
+      ghost.style.zIndex = '9999';
+      ghost.classList.add('drag-ghost');
+      document.body.appendChild(ghost);
+      touchState.ghost = ghost;
+      touchState.dragging = true;
+      itemDiv.classList.add('dragging');
+    }, 180);
+  }, { passive: false });
+
+  itemDiv.addEventListener('touchmove', (e) => {
+    if (!touchState) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - touchState.startX);
+    const dy = Math.abs(touch.clientY - touchState.startY);
+    
+    if (!touchState.dragging && touchState.holdTimer && (dx > 12 || dy > 12)) {
+      clearTimeout(touchState.holdTimer);
+      touchState.holdTimer = null;
+    }
+
+    e.preventDefault();
+    if (touchState.dragging && touchState.ghost) {
+      touchState.ghost.style.left = touch.clientX + 'px';
+      touchState.ghost.style.top = touch.clientY + 'px';
+
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetItem = findBraceletItemElement(el);
+
+      let mode = null;
+      if (targetItem) {
+        const rect = targetItem.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const ratio = x / rect.width;
+        if (ratio < 0.4) mode = 'before';
+        else if (ratio > 0.6) mode = 'after';
+        else mode = 'center';
+      }
+
+      if (currentDragTarget.el === targetItem && currentDragTarget.mode === mode) return;
+
+      document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('drag-over','insert-before','insert-after','drop-center'));
+
+      if (targetItem) {
+        currentDragTarget.el = targetItem;
+        currentDragTarget.mode = mode;
+        if (mode === 'before') targetItem.classList.add('insert-before');
+        else if (mode === 'after') targetItem.classList.add('insert-after');
+        else targetItem.classList.add('drop-center');
+      } else {
+        currentDragTarget.el = null;
+        currentDragTarget.mode = null;
+      }
+    }
+  }, { passive: false });
+
+  itemDiv.addEventListener('touchend', (e) => {
+    if (!touchState) return;
+    
+    if (touchState.holdTimer && !touchState.dragging) {
+      clearTimeout(touchState.holdTimer);
+      touchState.holdTimer = null;
+      const was = itemDiv.classList.contains('show-remove');
+      document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
+      if (!was) itemDiv.classList.add('show-remove');
+      touchState = null;
+      e.preventDefault();
+      return;
+    }
+
+    const ghost = touchState.ghost;
+    if (ghost && ghost.parentElement) ghost.parentElement.removeChild(ghost);
+    itemDiv.classList.remove('dragging');
+    
+    const lastTouch = (e.changedTouches && e.changedTouches[0]) || null;
+    let performed = false;
+    
+    if (lastTouch) {
+      const el = document.elementFromPoint(lastTouch.clientX, lastTouch.clientY);
+      const dropTarget = findBraceletItemElement(el);
+      if (dropTarget && dropTarget.dataset.index !== undefined) {
+        const rect = dropTarget.getBoundingClientRect();
+        const x = lastTouch.clientX - rect.left;
+        const ratio = x / rect.width;
+        const targetIndex = parseInt(dropTarget.dataset.index);
+        if (ratio < 0.4) {
+          Bracelet.insertItem(touchState.srcIndex, targetIndex);
+          performed = true;
+        } else if (ratio > 0.6) {
+          Bracelet.insertItem(touchState.srcIndex, targetIndex + 1);
+          performed = true;
+        } else {
+          Bracelet.moveItem(touchState.srcIndex, targetIndex);
+          performed = true;
+        }
+      }
+    }
+
+    if (!performed && typeof touchState.srcIndex === 'number') {
+      Bracelet.insertItem(touchState.srcIndex, Bracelet.getBraceletItems().length);
+    }
+
+    if (currentDragTarget.el) clearInsertClasses(currentDragTarget.el);
+    currentDragTarget.el = null;
+    currentDragTarget.mode = null;
+    document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('drag-over'));
+    renderBracelet();
+    touchState = null;
+  }, { passive: false });
+}
 
 export function addCharm(img) {
   const id = parseInt(img.dataset.name);
@@ -69,14 +222,119 @@ export function renderBracelet() {
       const btn = document.createElement('button');
       btn.innerText = '×';
       btn.classList.add('remove-btn');
-      btn.onclick = () => {
+      // stop click from bubbling to the item (which toggles show-remove)
+      btn.style.touchAction = 'manipulation';
+      btn.addEventListener('pointerdown', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        // remove and clear any visible remove buttons
         removeCharm(index);
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
         renderCharmCategories(); // Update charm grid tooltips
-      };
+        ev.stopImmediatePropagation();
+      });
+      // Fallback for environments without pointer events
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        removeCharm(index);
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
+        renderCharmCategories();
+      });
+
+      // clicking the item (not the remove button) toggles the remove button visibility
+      itemDiv.addEventListener('click', (ev) => {
+        // ignore clicks that originate from the remove button
+        if (ev.target === btn) return;
+        const was = itemDiv.classList.contains('show-remove');
+        // hide others
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
+        if (!was) itemDiv.classList.add('show-remove');
+      });
       
       itemDiv.appendChild(img);
       itemDiv.appendChild(btn);
       braceletDiv.appendChild(itemDiv);
+
+      // Make bracelet items draggable for reordering
+      itemDiv.draggable = true;
+      itemDiv.dataset.index = index;
+
+      itemDiv.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', index.toString());
+        e.dataTransfer.effectAllowed = 'move';
+        // hide any visible remove buttons while dragging
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
+        itemDiv.classList.add('dragging');
+      });
+
+      itemDiv.addEventListener('dragend', () => {
+        itemDiv.classList.remove('dragging');
+        if (currentDragTarget.el) clearInsertClasses(currentDragTarget.el);
+        currentDragTarget.el = null;
+        currentDragTarget.mode = null;
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('drag-over'));
+      });
+
+      itemDiv.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        // compute pointer position relative to item to decide insert-before/after or center-swap
+        const rect = itemDiv.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const ratio = x / rect.width;
+
+        // decide mode
+        let mode = 'center';
+        if (ratio < 0.4) mode = 'before';
+        else if (ratio > 0.6) mode = 'after';
+
+        // if unchanged target+mode, skip toggling classes to avoid flicker
+        if (currentDragTarget.el === itemDiv && currentDragTarget.mode === mode) return;
+
+        // clear previous (remove insert classes globally to avoid duplicate indicators)
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('drag-over','insert-before','insert-after','drop-center'));
+
+        // set new
+        currentDragTarget.el = itemDiv;
+        currentDragTarget.mode = mode;
+        if (mode === 'before') itemDiv.classList.add('insert-before');
+        else if (mode === 'after') itemDiv.classList.add('insert-after');
+        else itemDiv.classList.add('drop-center');
+      });
+
+      itemDiv.addEventListener('dragleave', () => {
+        itemDiv.classList.remove('drag-over','insert-before','insert-after','drop-center');
+      });
+
+      itemDiv.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const src = parseInt(e.dataTransfer.getData('text/plain'));
+        if (isNaN(src)) return;
+        const destIndex = parseInt(itemDiv.dataset.index);
+        const rect = itemDiv.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const ratio = x / rect.width;
+
+        if (ratio < 0.4) {
+          // insert before
+          Bracelet.insertItem(src, destIndex);
+        } else if (ratio > 0.6) {
+          // insert after
+          Bracelet.insertItem(src, destIndex + 1);
+        } else {
+          // center -> swap
+          Bracelet.moveItem(src, destIndex);
+        }
+
+        // cleanup classes
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('drag-over','insert-before','insert-after','drop-center','dragging'));
+        renderBracelet();
+      });
+
+      // Setup mobile touch drag handlers
+      setupTouchHandlers(itemDiv, index);
     });
   }
   
@@ -118,26 +376,44 @@ export function generateBraceletCode() {
 
 export function renderCharmCategories() {
   if (!charmsContainer) return;
-  
   charmsContainer.innerHTML = '';
-  
+  renderFilterControls();
+
   // Group categories by metal type for better UI organization
   const silverCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("SILVER"));
   const goldCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("GOLD"));
   const pinkCategories = Object.keys(CHARM_CATEGORIES).filter(cat => cat.includes("PINK"));
 
-  // Render SILVER section
-  // Render PLAIN section at top (single category not separated by metal)
+  // Render based on current filter
+  if (currentMetalFilter === 'PLAIN') {
+    if (CHARM_CATEGORIES["PLAIN"]) renderMetalSection("PLAIN", ["PLAIN"]);
+    return;
+  }
+
+  if (currentMetalFilter === 'SILVER') {
+    if (silverCategories.length > 0) renderMetalSection("SILVER", silverCategories);
+    return;
+  }
+
+  if (currentMetalFilter === 'GOLD') {
+    if (goldCategories.length > 0) renderMetalSection("GOLD", goldCategories);
+    return;
+  }
+
+  if (currentMetalFilter === 'PINK') {
+    if (pinkCategories.length > 0) renderMetalSection("PINK", pinkCategories);
+    return;
+  }
+
+  // Default: ALL - render all sections in a logical order
   if (CHARM_CATEGORIES["PLAIN"]) {
     renderMetalSection("PLAIN", ["PLAIN"]);
   }
 
-  // Render SILVER section
   if (silverCategories.length > 0) {
     renderMetalSection("SILVER", silverCategories);
   }
 
-  // Render PINK section (between metals)
   if (pinkCategories.length > 0) {
     const separator1 = document.createElement('div');
     separator1.style.cssText = 'margin: 30px 0; border-top: 2px dashed #aaa; opacity: 0.3;';
@@ -145,15 +421,104 @@ export function renderCharmCategories() {
     renderMetalSection("PINK", pinkCategories);
   }
 
-  // Add visual separator before GOLD
   const separator = document.createElement('div');
   separator.style.cssText = 'margin: 40px 0; border-top: 3px solid #76023c; opacity: 0.3;';
   charmsContainer.appendChild(separator);
 
-  // Render GOLD section
   if (goldCategories.length > 0) {
     renderMetalSection("GOLD", goldCategories);
   }
+}
+
+/**
+ * Create a charm wrapper with image and tooltip
+ */
+function createCharmElement(charm, category, index, inStock, stock, currentCount, remainingSlots) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'charm-wrapper';
+  
+  const img = document.createElement('img');
+  img.src = getCharmImageUrl(charm.id, category, charm.metal);
+  img.className = `charm ${!inStock ? 'out-of-stock' : remainingSlots === 0 ? 'max-reached' : ''}`;
+  img.dataset.name = charm.id;
+  img.dataset.price = charm.price;
+  img.dataset.category = category;
+  if (charm.metal) img.dataset.metal = charm.metal;
+  img.dataset.categoryIndex = index;
+  img.loading = 'lazy';
+  img.alt = `Charm ${charm.id}`;
+  img.setAttribute('role', 'button');
+  img.setAttribute('tabindex', '0');
+  
+  // Tooltip
+  const tooltip = document.createElement('div');
+  tooltip.className = 'charm-tooltip';
+  
+  if (!inStock) {
+    tooltip.textContent = 'Out of Stock';
+    tooltip.setAttribute('data-status', 'out-of-stock');
+  } else if (remainingSlots === 0) {
+    tooltip.textContent = 'Max Reached';
+    tooltip.setAttribute('data-status', 'max-reached');
+  } else {
+    tooltip.textContent = `₱${charm.price} (${remainingSlots} left)`;
+    tooltip.setAttribute('data-status', 'available');
+  }
+  
+  // Stock badge
+  if (!inStock) {
+    const badge = document.createElement('div');
+    badge.className = 'stock-badge out';
+    badge.textContent = '0';
+    wrapper.appendChild(badge);
+  } else if (remainingSlots === 0) {
+    const badge = document.createElement('div');
+    badge.className = 'stock-badge max';
+    badge.textContent = '✓';
+    wrapper.appendChild(badge);
+  } else if (stock < 10) {
+    const badge = document.createElement('div');
+    badge.className = 'stock-badge low';
+    badge.textContent = remainingSlots;
+    wrapper.appendChild(badge);
+  }
+  
+  // Tooltip display handlers - only show one tooltip at a time
+  let tooltipTimeout;
+  const showTooltip = () => {
+    // Hide all other tooltips
+    document.querySelectorAll('.charm-tooltip').forEach(t => {
+      if (t !== tooltip) {
+        t.style.opacity = '0';
+        clearTimeout(t.dataset.timeoutId);
+      }
+    });
+    tooltip.style.opacity = '1';
+    clearTimeout(tooltipTimeout);
+  };
+  const hideTooltip = () => {
+    clearTimeout(tooltipTimeout);
+    tooltipTimeout = setTimeout(() => { tooltip.style.opacity = '0'; }, 2000);
+    tooltip.dataset.timeoutId = tooltipTimeout;
+  };
+  
+  img.addEventListener('mouseenter', showTooltip);
+  img.addEventListener('mouseleave', hideTooltip);
+  img.addEventListener('click', () => {
+    showTooltip();
+    if (inStock && remainingSlots > 0) addCharm(img);
+  });
+  img.addEventListener('touchstart', showTooltip, { passive: true });
+  img.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (inStock && remainingSlots > 0) addCharm(img);
+    }
+  });
+  
+  wrapper.appendChild(img);
+  wrapper.appendChild(tooltip);
+  return wrapper;
 }
 
 /**
@@ -164,19 +529,13 @@ function renderMetalSection(metal, categories) {
   section.className = 'metal-section';
   
   // Section header
-  const header = document.createElement('div');
-  header.style.cssText = 'text-align: center; margin: 30px 0 20px; padding: 10px;';
   const title = document.createElement('h1');
   title.textContent = metal;
-  title.style.cssText = 'font-size: 2rem; color: #76023c; margin: 0; text-transform: uppercase; letter-spacing: 2px;';
-  header.appendChild(title);
-  
-  section.appendChild(header);
+  section.appendChild(title);
   
   // Container for category cards
   const categoriesGrid = document.createElement('div');
   categoriesGrid.className = 'categories-grid';
-  categoriesGrid.style.cssText = 'display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0 10px;';
   
   categories.forEach(category => {
     const charms = CHARM_CATEGORIES[category];
@@ -186,258 +545,46 @@ function renderMetalSection(metal, categories) {
     
     const categoryCard = document.createElement('div');
     categoryCard.className = 'category-card';
-    categoryCard.style.cssText = `
-      background: #fff;
-      border: 2px solid #76023c;
-      border-radius: 12px;
-      padding: 15px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    `;
     
-    categoryCard.addEventListener('mouseenter', () => {
-      categoryCard.style.cssText += 'transform: translateY(-5px); box-shadow: 0 6px 16px rgba(118, 2, 60, 0.2);';
-    });
-    
-    categoryCard.addEventListener('mouseleave', () => {
-      categoryCard.style.cssText = categoryCard.getAttribute('data-original-style');
-    });
-    
-    categoryCard.setAttribute('data-original-style', categoryCard.style.cssText);
-    
-    // Category header with icon and info
+    // Category header
     const catHeader = document.createElement('div');
-    catHeader.style.cssText = 'display: flex; align-items: center; gap: 10px; margin-bottom: 12px;';
+    catHeader.className = 'category-header';
     
     const icon = document.createElement('span');
+    icon.className = 'category-icon';
     icon.textContent = catInfo.icon;
-    icon.style.cssText = 'font-size: 1.8rem;';
     
-    const catTitleDiv = document.createElement('div');
+    const catInfo_div = document.createElement('div');
+    catInfo_div.className = 'category-info';
     const catTitle = document.createElement('h3');
     catTitle.textContent = baseCategory;
-    catTitle.style.cssText = 'margin: 0; font-size: 1.1rem; color: #76023c;';
+    const description = document.createElement('p');
+    description.className = 'category-description';
+    description.textContent = catInfo.description;
+    catInfo_div.appendChild(catTitle);
+    catInfo_div.appendChild(description);
     
-    const charmCountBadge = document.createElement('span');
-    charmCountBadge.textContent = charmCount;
-    charmCountBadge.style.cssText = 'background: #76023c; color: #feffe2; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-left: auto;';
+    const badge = document.createElement('div');
+    badge.className = 'category-count-badge';
+    badge.textContent = charmCount;
     
     catHeader.appendChild(icon);
-    catTitleDiv.appendChild(catTitle);
-    catHeader.appendChild(catTitleDiv);
-    catHeader.appendChild(charmCountBadge);
+    catHeader.appendChild(catInfo_div);
+    catHeader.appendChild(badge);
     categoryCard.appendChild(catHeader);
-    
-    // Description
-    const description = document.createElement('p');
-    description.textContent = catInfo.description;
-    description.style.cssText = 'margin: 8px 0; font-size: 0.9rem; color: #666; font-style: italic;';
-    categoryCard.appendChild(description);
     
     // Charms grid
     const menu = document.createElement('div');
     menu.className = 'charm-menu';
-    menu.style.cssText = 'display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px;';
     
     charms.forEach((charm, index) => {
-      const img = document.createElement('img');
-      img.src = getCharmImageUrl(charm.id, category, charm.metal);
-      img.className = 'charm';
-      img.dataset.name = charm.id;
-      img.dataset.price = charm.price;
-      img.dataset.category = category;
-      if (charm.metal) img.dataset.metal = charm.metal;
-      img.dataset.categoryIndex = index;  // Store the index in the category array
-      img.loading = 'lazy';
-      img.alt = `Charm ${charm.id}`;
-      
-      // Check if charm is in stock
       const inStock = isCharmInStock(charm.id);
       const stock = getCharmStock(charm.id);
       const currentCount = Bracelet.countCharmById(charm.id);
       const remainingSlots = stock - currentCount;
       
-      // Enhanced charm styling
-      let baseStyles = `
-        width: 60px;
-        height: 60px;
-        object-fit: contain;
-        padding: 4px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        background: #f5f5f5;
-        border: 2px solid transparent;
-      `;
-      
-      if (!inStock) {
-        baseStyles += `
-          opacity: 0.4;
-          cursor: not-allowed;
-          filter: grayscale(100%);
-        `;
-      } else if (remainingSlots === 0) {
-        baseStyles += `
-          opacity: 0.5;
-          cursor: not-allowed;
-          filter: brightness(0.8);
-        `;
-      } else {
-        baseStyles += `
-          cursor: pointer;
-        `;
-      }
-      
-      img.style.cssText = baseStyles;
-      
-      img.addEventListener('mouseenter', () => {
-        if (inStock && remainingSlots > 0) {
-          img.style.cssText = baseStyles + 'transform: scale(1.15); border-color: #76023c; box-shadow: 0 4px 8px rgba(118, 2, 60, 0.3);';
-        }
-      });
-      
-      img.addEventListener('mouseleave', () => {
-        img.style.cssText = baseStyles;
-      });
-      
-      // Tooltip on hover
-      const tooltip = document.createElement('div');
-      tooltip.className = 'charm-tooltip';
-      
-      let tooltipText = '';
-      let tooltipColor = '#76023c';
-      
-      if (!inStock) {
-        tooltipText = 'Out of Stock';
-        tooltipColor = '#999';
-      } else if (remainingSlots === 0) {
-        tooltipText = 'Max Reached';
-        tooltipColor = '#ff6b6b';
-      } else {
-        tooltipText = `₱${charm.price} (${remainingSlots} left)`;
-        tooltipColor = '#76023c';
-      }
-      
-      tooltip.style.cssText = `
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: ${tooltipColor};
-        color: #feffe2;
-        padding: 6px 10px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.2s;
-        z-index: 10;
-        margin-bottom: 8px;
-      `;
-      tooltip.textContent = tooltipText;
-      
-      const imgWrapper = document.createElement('div');
-      imgWrapper.style.cssText = 'position: relative;';
-      imgWrapper.appendChild(img);
-      imgWrapper.appendChild(tooltip);
-      
-      // Add stock badge for mobile visibility
-      if (!inStock) {
-        const outOfStockBadge = document.createElement('div');
-        outOfStockBadge.style.cssText = `
-          position: absolute;
-          top: -5px;
-          right: -5px;
-          background: #999;
-          color: white;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.65rem;
-          font-weight: bold;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        `;
-        outOfStockBadge.textContent = '0';
-        imgWrapper.appendChild(outOfStockBadge);
-      } else if (remainingSlots === 0) {
-        const maxBadge = document.createElement('div');
-        maxBadge.style.cssText = `
-          position: absolute;
-          top: -5px;
-          right: -5px;
-          background: #ff6b6b;
-          color: white;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.65rem;
-          font-weight: bold;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        `;
-        maxBadge.textContent = '✓';
-        imgWrapper.appendChild(maxBadge);
-      } else if (stock < 10) {
-        // Only show badge if stock is low (less than 10)
-        const stockBadge = document.createElement('div');
-        stockBadge.style.cssText = `
-          position: absolute;
-          top: -5px;
-          right: -5px;
-          background: #76023c;
-          color: #feffe2;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.75rem;
-          font-weight: bold;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        `;
-        stockBadge.textContent = remainingSlots;
-        imgWrapper.appendChild(stockBadge);
-      }
-      
-      img.addEventListener('mouseenter', () => {
-        tooltip.style.opacity = '1';
-      });
-      
-      img.addEventListener('mouseleave', () => {
-        tooltip.style.opacity = '0';
-      });
-      
-      // Show tooltip on touch/click for mobile - auto-dismiss after 3 seconds
-      let tooltipTimeout;
-      img.addEventListener('click', () => {
-        tooltip.style.opacity = '1';
-        clearTimeout(tooltipTimeout);
-        tooltipTimeout = setTimeout(() => {
-          tooltip.style.opacity = '0';
-        }, 3000);
-        
-        // Add charm if in stock
-        if (inStock && remainingSlots > 0) {
-          addCharm(img);
-        }
-      });
-      
-      img.addEventListener('touchstart', () => {
-        tooltip.style.opacity = '1';
-        clearTimeout(tooltipTimeout);
-        tooltipTimeout = setTimeout(() => {
-          tooltip.style.opacity = '0';
-        }, 3000);
-      });
-      
-      menu.appendChild(imgWrapper);
+      const charmEl = createCharmElement(charm, category, index, inStock, stock, currentCount, remainingSlots);
+      menu.appendChild(charmEl);
     });
     
     categoryCard.appendChild(menu);
@@ -446,6 +593,33 @@ function renderMetalSection(metal, categories) {
   
   section.appendChild(categoriesGrid);
   charmsContainer.appendChild(section);
+}
+
+// Render the metal filter buttons (All / Gold / Silver / Pink / Plain)
+function renderFilterControls() {
+  if (!metalFiltersContainer) return;
+  metalFiltersContainer.innerHTML = '';
+  const options = [
+    { key: 'ALL', label: 'All' },
+    { key: 'GOLD', label: 'Gold' },
+    { key: 'SILVER', label: 'Silver' },
+    { key: 'PINK', label: 'Pink' },
+    { key: 'PLAIN', label: 'Plain' }
+  ];
+
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.textContent = opt.label;
+    if (currentMetalFilter === opt.key) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      currentMetalFilter = opt.key;
+      // Update classes
+      Array.from(metalFiltersContainer.querySelectorAll('button')).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCharmCategories();
+    });
+    metalFiltersContainer.appendChild(btn);
+  });
 }
 
 // Event listeners
@@ -461,8 +635,38 @@ export async function init() {
     if (e.key === 'Enter') decodeBraceletCode();
   });
   
+  // Allow dropping on the bracelet area to move item to the end
+  if (braceletDiv) {
+    braceletDiv.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    braceletDiv.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const src = parseInt(e.dataTransfer.getData('text/plain'));
+      if (isNaN(src)) return;
+      // Append to end when dropped on empty bracelet area
+      const dest = Bracelet.getBraceletItems().length;
+      Bracelet.insertItem(src, dest);
+      renderBracelet();
+    });
+  }
+  renderFilterControls();
   renderCharmCategories();
   renderBracelet();
+
+  // Global: hide any visible remove buttons when clicking or touching outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest || !e.target.closest('.bracelet-item')) {
+      document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
+    }
+  });
+
+  document.addEventListener('touchstart', (e) => {
+    if (!e.target.closest || !e.target.closest('.bracelet-item')) {
+      document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('show-remove'));
+    }
+  }, { passive: true });
 }
 
 export function decodeBraceletCode() {

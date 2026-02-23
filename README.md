@@ -189,17 +189,422 @@ To add new charms to the catalog:
 - Charm preview modal with detailed info
 - Print-friendly bracelet receipt
 
+---
+
+## Adding New Products - Complete Step-by-Step Guide
+
+### Overview
+Adding new charms to SAINTLINKZ requires updating three key areas:
+1. **Image files** in the appropriate folder structure
+2. **`data.js`** to register the charm
+3. **`inventory.json`** to set stock quantities (optional)
+
+### Prerequisites
+- PNG charm images optimized for web (60x60px recommended)
+- Charm ID (unique integer)
+- Price in Philippine Pesos (₱)
+- Category classification (regular, dangle, premium, or plain)
+- Metal type (silver, gold, pink, or plain)
+
+---
+
+### Step 1: Prepare Your Image File
+
+**File Requirements:**
+- Format: PNG (supports transparency)
+- Size: 60x60px minimum (200x200px recommended for quality)
+- Filename: Should match the charm ID or follow the system's naming convention
+
+**Naming Convention:**
+- Regular charms: `{ID}.png` (e.g., `24.png`, `53.png`)
+- Dangle charms: `{PREFIX}DAN{NUMBER}.png` (e.g., `SDAN01.png`, `GDAN05.png`)
+- Premium charms: `P{ID}.png` (e.g., `P01.png`)
+- Plain charms: `{METAL}PLAIN.png` (e.g., `GPLAIN.png`, `SPLAIN.png`)
+
+---
+
+### Step 2: Place Image in Correct Folder
+
+Navigate to the appropriate image directory based on charm type and metal:
+
+**For SILVER Regular Charms:**
+```
+images/silver/regular/{CATEGORY}/{ID}.png
+```
+**Example:** `images/silver/regular/ALB/24.png`
+
+**Available Categories:**
+- `ALB/` = Albums & Artist
+- `BRA/` = Brands
+- `COQ/` = Coquette  
+- `COU/` = Couple
+- `F1/` = Formula 1
+- `ILO/` = I Love
+- `TEM/` = Temp/Popular Picks
+
+**For SILVER Dangle Charms:**
+```
+images/silver/dangle/SDAN{NUMBER}.png
+```
+**Example:** `images/silver/dangle/SDAN01.png`
+
+**For GOLD Regular Charms:**
+```
+images/gold/regular/{CATEGORY}/{ID}.png
+```
+**Example:** `images/gold/regular/ALB/24.png`
+
+**For GOLD Dangle Charms:**
+```
+images/gold/dangle/GDAN{NUMBER}.png
+```
+**Example:** `images/gold/dangle/GDAN01.png`
+
+**For GOLD Premium Charms:**
+```
+images/gold/premium/P{ID}.png
+```
+**Example:** `images/gold/premium/P01.png`
+
+**For PINK Dangle Charms:**
+```
+images/pink/dangle/PDAN{NUMBER}.png
+```
+**Example:** `images/pink/dangle/PDAN01.png`
+
+**For PLAIN Charms:**
+```
+images/plain/{METAL}PLAIN.png
+```
+**Example:** `images/plain/GPLAIN.png` (gold plain), `images/plain/SPLAIN.png` (silver plain)
+
+---
+
+### Step 3: Register Charm in `data.js`
+
+Open `data.js` and locate the `CHARM_CATEGORIES` constant. Find the appropriate category array and add your charm.
+
+**Example 1: Add Silver Regular Charm to Albums & Artist**
+
+Find this section:
+```javascript
+"SILVER - ALBUMS & ARTIST": [
+  { id: 24, price: 35 },
+  { id: 53, price: 35 },
+  { id: 55, price: 35 },
+  // ... more charms
+]
+```
+
+Add your new charm at the end of the array:
+```javascript
+"SILVER - ALBUMS & ARTIST": [
+  { id: 24, price: 35 },
+  { id: 53, price: 35 },
+  { id: 55, price: 35 },
+  // ... more charms
+  { id: 999, price: 35 }  // NEW: Add your charm ID and price
+]
+```
+
+**Key Points:**
+- `id`: Unique integer that matches your image filename
+- `price`: ₱ price as a number (no currency symbol)
+- Use commas between entries
+- Keep IDs in ascending order for clarity (optional but recommended)
+
+**Example 2: Add Gold Dangle Charm**
+
+Find this section:
+```javascript
+"GOLD - DANGLE": [
+  { id: 1001, price: 60 },
+  { id: 1002, price: 60 },
+  // ... more charms
+]
+```
+
+Add your new charm:
+```javascript
+"GOLD - DANGLE": [
+  { id: 1001, price: 60 },
+  { id: 1002, price: 60 },
+  // ... more charms
+  { id: 1050, price: 60 }  // NEW: Gold dangle charm
+]
+```
+
+**Example 3: Add Plain Charm (with metal specification)**
+
+Find this section:
+```javascript
+"PLAIN": [
+  { id: 2001, price: 15, metal: "silver" },
+  { id: 2002, price: 20, metal: "gold" },
+  // ... more charms
+]
+```
+
+Add with metal type:
+```javascript
+"PLAIN": [
+  { id: 2001, price: 15, metal: "silver" },
+  { id: 2002, price: 20, metal: "gold" },
+  { id: 2050, price: 20, metal: "gold" }  // NEW: Plain gold charm
+]
+```
+
+**All Category Names:**
+Make sure you use the exact category names when adding:
+
+| Category | Metal | Type |
+|----------|-------|------|
+| `"SILVER - ALBUMS & ARTIST"` | Silver | Regular |
+| `"SILVER - BRANDS"` | Silver | Regular |
+| `"SILVER - COQUETTE"` | Silver | Regular |
+| `"SILVER - COUPLE"` | Silver | Regular |
+| `"SILVER - F1"` | Silver | Regular |
+| `"SILVER - I LOVE"` | Silver | Regular |
+| `"SILVER - TEMP"` | Silver | Regular |
+| `"SILVER - DANGLE"` | Silver | Dangle |
+| `"SILVER - PREMIUM"` | Silver | Premium |
+| `"GOLD - ALBUMS & ARTIST"` | Gold | Regular |
+| `"GOLD - BRANDS"` | Gold | Regular |
+| `"GOLD - COQUETTE"` | Gold | Regular |
+| `"GOLD - COUPLE"` | Gold | Regular |
+| `"GOLD - F1"` | Gold | Regular |
+| `"GOLD - I LOVE"` | Gold | Regular |
+| `"GOLD - TEMP"` | Gold | Regular |
+| `"GOLD - DANGLE"` | Gold | Dangle |
+| `"GOLD - PREMIUM"` | Gold | Premium |
+| `"PINK - DANGLE"` | Pink | Dangle |
+| `"PLAIN"` | Mixed | Plain |
+
+---
+
+### Step 4: Add Image URL Mapping (Optional - If Needed)
+
+If your charm uses a non-standard filename, update the `ID_TO_FILENAME_MAP` in `data.js`:
+
+```javascript
+const ID_TO_FILENAME_MAP = {
+  // ... existing mappings
+  999: 'custom_name.png',  // Maps charm ID 999 to 'custom_name.png'
+};
+```
+
+*This is only needed if you prefer custom filenames different from the charm ID.*
+
+---
+
+### Step 5: Set Stock Quantity (Optional - via inventory.json)
+
+To limit how many of a charm can be added to a bracelet, update `inventory.json`:
+
+Original:
+```json
+{
+  "charms": {
+    "24": 10,
+    "53": 5,
+    "55": 3
+  }
+}
+```
+
+Add your new charm's stock:
+```json
+{
+  "charms": {
+    "24": 10,
+    "53": 5,
+    "55": 3,
+    "999": 15
+  }
+}
+```
+
+**Notes:**
+- If a charm ID is **not** in `inventory.json`, defaults to 10 stock
+- Set to 0 to completely hide/disable the charm
+- Set to any positive integer to limit selections
+
+---
+
+### Step 6: Test Your Changes
+
+1. **Refresh the browser** (press `Ctrl+F5` or `Cmd+Shift+R` on Mac for hard refresh)
+2. **Check the charm appears** under the correct metal section and category
+3. **Add to bracelet** to verify it works with pricing
+4. **Generate code** to ensure encoding/decoding works
+5. **Check mobile view** on a tablet/phone to verify responsiveness
+
+**Troubleshooting:**
+
+| Issue | Solution |
+|-------|----------|
+| Charm doesn't appear | Verify category name matches exactly (case-sensitive) |
+| Wrong price shown | Check `price` value in `data.js` |
+| Image broken | Verify file path and filename match exactly |
+| Out of stock warning | Check `inventory.json` for stock level |
+| Not in edit/add mode | Clear browser cache and hard refresh |
+
+---
+
+### Complete Example: Adding a New Gold Coquette Charm
+
+Here's a complete walkthrough adding charm ID `256` as a gold coquette charm priced at ₱45:
+
+**Step 1-2: Prepare and place image**
+- Create/export charm image as PNG
+- Save as `256.png`
+- Place in `images/gold/regular/COQ/256.png`
+
+**Step 3: Register in data.js**
+```javascript
+"GOLD - COQUETTE": [
+  { id: 88, price: 45 },
+  { id: 89, price: 45 },
+  { id: 90, price: 45 },
+  { id: 256, price: 45 }  // ← Add this line
+]
+```
+
+**Step 5: Set stock (optional)**
+```json
+{
+  "charms": {
+    "256": 20
+  }
+}
+```
+
+**Step 6: Verify**
+- Open website in browser  
+- Scroll to Gold section → Coquette category
+- See new charm with price ₱45
+- Add to bracelet → confirms price updates
+- Mobile test → charm displays properly
+
+---
+
+### Adding a New Charm Category
+
+If you need an entirely new category (e.g., "ANIMALS"):
+
+1. **Create folder structure:**
+   ```
+   images/silver/regular/ANI/  
+   images/gold/regular/ANI/  
+   ```
+
+2. **Add to `CATEGORY_INFO` in `data.js`:**
+   ```javascript
+   export const CATEGORY_INFO = {
+     // ... existing
+     "ANIMALS": { icon: "🐾", description: "Animal Charms" }
+   };
+   ```
+
+3. **Create charm arrays in `CHARM_CATEGORIES`:**
+   ```javascript
+   "SILVER - ANIMALS": [
+     { id: 300, price: 35 },
+     { id: 301, price: 35 }
+   ],
+   "GOLD - ANIMALS": [
+     { id: 300, price: 45 },
+     { id: 301, price: 45 }
+   ]
+   ```
+
+4. **Update `CATEGORY_ORDER` in `bracelet.js`** if you need encoding support for the new category
+
+---
+
+### Adding a New Metal Type
+
+To add a new metal (e.g., "ROSE GOLD"):
+
+1. **Create folder structure:**
+   ```
+   images/rose_gold/regular/{CATEGORIES}/
+   images/rose_gold/dangle/
+   images/rose_gold/premium/
+   ```
+
+2. **Add pricing to `PRICING` in `data.js`:**
+   ```javascript
+   export const PRICING = {
+     // ... existing
+     ROSE_GOLD: { regular: 50, dangle: 65, premium: 95, plain: 22 }
+   };
+   ```
+
+3. **Create category arrays:**
+   ```javascript
+   "ROSE_GOLD - ALBUMS & ARTIST": [
+     { id: 400, price: 50 }
+     // ... more charms
+   ]
+   ```
+
+4. **The filter buttons will auto-detect** new metal types that don't match SILVER/GOLD
+
+---
+
+### Quick Reference: Category Key Mapping
+
+Used internally for encoding/decoding (for reference):
+
+```javascript
+CATEGORY_ORDER = [
+  "ALBUMS & ARTIST",    // Index 0
+  "BRANDS",             // Index 1  
+  "COQUETTE",           // Index 2
+  "COUPLE",             // Index 3
+  "F1",                 // Index 4
+  "I LOVE",             // Index 5
+  "TEMP",               // Index 6
+  "DANGLE",             // Index 7  
+  "PREMIUM",            // Index 8
+  "PINK_DANGLE",        // Index 9
+  "PLAIN"               // Index 10
+];
+```
+
+---
+
+### Tips for Best Results
+
+✅ **DO:**
+- Keep charm image files at 60x60px or larger
+- Use consistent ID numbering within categories (e.g., all Categories 24-90)
+- Group related charms in same ID ranges
+- Test on mobile after adding new charms
+- Use descriptive comments in charm arrays
+
+❌ **DON'T:**
+- Leave gaps in category arrays (optional but cleaner)
+- Use decimal numbers for IDs (must be integers)
+- Forget to add both SILVER and GOLD versions if offering both
+- Use special characters in filenames
+- Change category names mid-catalog (breaks encoding)
+
+---
+
+## Performance Optimization Tips
+
+- **Lazy loading:** All charm images use `loading="lazy"` for faster page loads
+- **Minimize renders:** Charm grid only re-renders when filter changes
+- **Caching:** Browser caches all static images after first load
+- **Encoding:** Bracelet codes are ~66% smaller than transmitting full arrays
+
+---
+
 ## License
 
 SAINTLINKZ © 2026. All rights reserved.
-
-
-## How to Use
-
-1. **Build**: Click charms to add them to your bracelet
-2. **View Code**: Press "Copy Bracelet Code" to copy the shareable code
-3. **Share**: Send the code to a friend
-4. **Restore**: Friend pastes the code and clicks "Restore Bracelet" to see exactly what you designed
 
 ## Browser Support
 

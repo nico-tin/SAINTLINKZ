@@ -38,6 +38,48 @@ export function countCharmById(charmId) {
   return braceletItems.filter(item => item.id === charmId).length;
 }
 
+export function moveItem(srcIndex, destIndex) {
+  // Supports two behaviors:
+  // - If destIndex === braceletItems.length => move (append) the item to the end
+  // - Otherwise => swap the items at srcIndex and destIndex
+  if (typeof srcIndex !== 'number' || typeof destIndex !== 'number') return;
+  if (srcIndex < 0 || srcIndex >= braceletItems.length) return;
+  if (destIndex < 0) destIndex = 0;
+
+  // Append to end when destIndex equals length
+  if (destIndex === braceletItems.length) {
+    const [item] = braceletItems.splice(srcIndex, 1);
+    braceletItems.push(item);
+    console.log(`moveItem: moved index ${srcIndex} -> end`);
+    return;
+  }
+
+  // Clamp destIndex to valid range for swapping
+  if (destIndex >= braceletItems.length) destIndex = braceletItems.length - 1;
+  if (srcIndex === destIndex) return;
+
+  const tmp = braceletItems[srcIndex];
+  braceletItems[srcIndex] = braceletItems[destIndex];
+  braceletItems[destIndex] = tmp;
+  console.log(`moveItem: swapped ${srcIndex} <-> ${destIndex}`);
+}
+
+// Insert item at destination index (shifts others). destIndex may equal length to append.
+export function insertItem(srcIndex, destIndex) {
+  if (typeof srcIndex !== 'number' || typeof destIndex !== 'number') return;
+  if (srcIndex < 0 || srcIndex >= braceletItems.length) return;
+  if (destIndex < 0) destIndex = 0;
+  if (destIndex > braceletItems.length) destIndex = braceletItems.length;
+
+  // If inserting to the same position or adjacent equivalent, no-op
+  if (srcIndex === destIndex || srcIndex + 1 === destIndex) return;
+
+  const [item] = braceletItems.splice(srcIndex, 1);
+  // Adjust destIndex if source was before destination
+  if (destIndex > srcIndex) destIndex -= 1;
+  braceletItems.splice(destIndex, 0, item);
+}
+
 // Ordered category list - MUST be consistent between encoder and decoder
 // Index must match between generateCode() and decodeHexCode()
 const CATEGORY_ORDER = [
