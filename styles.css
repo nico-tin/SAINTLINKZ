@@ -90,7 +90,7 @@ header img {
   width: 50px;
   height: auto;
   aspect-ratio: 2277 / 2077;
-  background-color: white;
+  background-color: transparent;
   object-fit: contain;
   cursor: pointer;
   border: none;
