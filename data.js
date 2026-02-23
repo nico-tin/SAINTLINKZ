@@ -293,7 +293,8 @@ export const CHARM_CATEGORIES = {
     { id: 302, price: 20, metal: 'PINK' },
     { id: 303, price: 15, metal: 'SILVER' },
     { id: 304, price: 20 }, { id: 305, price: 20 },
-    {id: 306, price:20}, {id: 307, price: 20}
+    {id: 306, price:20}, {id: 307, price: 20},
+    {id: 308, price: 40}, {id: 309, price: 50},
   ],
 };
 
@@ -426,7 +427,7 @@ export function getCharmNewName(id) {
     // Newly added plain images
     304: "VPLAIN", 305: "BPLAIN",
     // Plain images mapping
-    301: "GPLAIN", 302: "PPLAIN", 303: "SPLAIN", 306: "HPLAIN", 307: "FPLAIN"
+    301: "GPLAIN", 302: "PPLAIN", 303: "SPLAIN", 306: "HPLAIN", 307: "FPLAIN", 308: "GCPLAIN", 309: "SCPLAIN"
   };
   return idMapping[id] || id.toString();
 }
