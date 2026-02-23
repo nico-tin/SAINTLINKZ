@@ -365,7 +365,7 @@ export function generateBraceletCode() {
   braceletCodeEl.innerText = code;
   navigator.clipboard.writeText(code)
     .then(() => {
-      copyMsgEl.innerText = 'Copied!';
+      copyMsgEl.innerText = 'Generated!';
       copyMsgEl.style.color = 'green';
     })
     .catch(() => {
