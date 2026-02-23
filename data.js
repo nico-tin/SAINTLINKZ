@@ -292,8 +292,8 @@ export const CHARM_CATEGORIES = {
     { id: 301, price: 20, metal: 'GOLD' },
     { id: 302, price: 20, metal: 'PINK' },
     { id: 303, price: 15, metal: 'SILVER' },
-    // Newly added plain charms
-    { id: 304, price: 20 }, { id: 305, price: 20 }
+    { id: 304, price: 20 }, { id: 305, price: 20 },
+    {id: 306, price:20}, {id: 307, price: 20}
   ],
 };
 
@@ -426,7 +426,7 @@ export function getCharmNewName(id) {
     // Newly added plain images
     304: "VPLAIN", 305: "BPLAIN",
     // Plain images mapping
-    301: "GPLAIN", 302: "PPLAIN", 303: "SPLAIN"
+    301: "GPLAIN", 302: "PPLAIN", 303: "SPLAIN", 306: "HPLAIN", 307: "FPLAIN"
   };
   return idMapping[id] || id.toString();
 }
