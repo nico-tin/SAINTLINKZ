@@ -68,6 +68,15 @@ header img {
   scroll-behavior: smooth;
 }
 
+.bracelet-instruction {
+  font-size: 0.85rem;
+  color: rgba(90,27,21,0.95);
+  font-style: italic;
+  margin-top: 6px;
+  text-align: center;
+  user-select: none;
+}
+
 #braceletPlaceholder {
   font-size: 1rem;
   font-weight: 600;

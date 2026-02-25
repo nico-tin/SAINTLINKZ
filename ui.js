@@ -20,6 +20,7 @@ const braceletCodeEl = document.getElementById('braceletCode');
 const copyMsgEl = document.getElementById('copyMsg');
 const charmsContainer = document.getElementById('charmsContainer');
 const metalFiltersContainer = document.getElementById('metalFilters');
+const braceletInstructionEl = document.getElementById('braceletInstruction');
 
 // Current filter state: 'ALL' | 'GOLD' | 'SILVER' | 'PINK' | 'PLAIN'
 let currentMetalFilter = 'ALL';
@@ -338,6 +339,17 @@ export function renderBracelet() {
     });
   }
   
+  // Show the drag instruction only when there's something to rearrange
+  if (braceletInstructionEl) {
+    if (items.length > 1) {
+      braceletInstructionEl.style.display = 'block';
+      braceletInstructionEl.setAttribute('aria-hidden', 'false');
+    } else {
+      braceletInstructionEl.style.display = 'none';
+      braceletInstructionEl.setAttribute('aria-hidden', 'true');
+    }
+  }
+
   updateDisplay();
   renderCharmCategories(); // Update charm grid with new stock counts
 }

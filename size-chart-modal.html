@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Size Chart Modal - SAINTLINKZ</title>
+  <style>
+    .size-chart-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .size-chart-modal.open {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background-color: #feffe2;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 900px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { 
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #76023c;
+      padding-bottom: 15px;
+    }
+
+    .modal-header h2 {
+      color: #76023c;
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #76023c;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+
+    .close-btn:hover {
+      transform: rotate(90deg);
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .measurement-guide {
+      background: linear-gradient(135deg, rgba(118, 2, 60, 0.1) 0%, rgba(212, 165, 116, 0.1) 100%);
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 5px solid #76023c;
+    }
+
+    .measurement-guide h3 {
+      color: #76023c;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+
+    .measurement-guide ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .measurement-guide li {
+      margin: 10px 0;
+      line-height: 1.6;
+      color: #5a1b15;
+    }
+
+    .size-table {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .size-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .size-table thead {
+      background-color: #76023c;
+      color: white;
+    }
+
+    .size-table th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .size-table td {
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .size-table tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .size-visual {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      margin: 30px 0;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      height: 300px;
+    }
+
+    .size-bar {
+      flex: 1;
+      background: linear-gradient(to top, #76023c, #c41e3a);
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .size-bar:hover {
+      transform: scaleY(1.05);
+    }
+
+    .size-bar label {
+      font-weight: 600;
+      color: white;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .size-bar.small { height: 30%; }
+    .size-bar.medium { height: 50%; }
+    .size-bar.large { height: 70%; }
+    .size-bar.xl { height: 90%; }
+
+    .conversion-table {
+      margin-top: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #d4a574;
+    }
+
+    .conversion-table h3 {
+      color: #76023c;
+      margin-bottom: 15px;
+    }
+
+    .conversion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .conversion-item {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 3px solid #d4a574;
+    }
+
+    .conversion-item strong {
+      color: #76023c;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .conversion-item span {
+      color: #5a1b15;
+      font-size: 1.2rem;
+    }
+
+    .tips-section {
+      background: linear-gradient(135deg, rgba(196, 30, 58, 0.1) 0%, rgba(212, 165, 116, 0.1) 100%);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+
+    .tips-section h3 {
+      color: #76023c;
+      margin-bottom: 15px;
+    }
+
+    .tips-section ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .tips-section li {
+      margin: 10px 0;
+      padding-left: 25px;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .tips-section li:before {
+      content: '⭐';
+      position: absolute;
+      left: 0;
+    }
+
+    @media (max-width: 768px) {
+      .modal-content {
+        width: 95%;
+        padding: 20px;
+      }
+
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .size-visual {
+        height: 200px;
+      }
+
+      .conversion-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Size Chart Modal -->
+  <div id="sizeChartModal" class="size-chart-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📏 Bracelet Size Chart</h2>
+        <button class="close-btn" onclick="closeSizeChart()">&times;</button>
+      </div>
+
+      <!-- Main Size Chart Section -->
+      <div class="chart-grid">
+        <!-- Size Table -->
+        <div class="size-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>Wrist Size</th>
+                <th>Bracelet Length</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>👶 Small</td>
+                <td>4.5 - 5.5"</td>
+                <td>6.5 - 7"</td>
+              </tr>
+              <tr>
+                <td>👧 Youth</td>
+                <td>5.5 - 6.5"</td>
+                <td>7 - 7.25"</td>
+              </tr>
+              <tr>
+                <td>👱 Medium</td>
+                <td>6.5 - 7"</td>
+                <td>7.5 - 8"</td>
+              </tr>
+              <tr>
+                <td>👨 Large</td>
+                <td>7 - 8"</td>
+                <td>8 - 8.5"</td>
+              </tr>
+              <tr>
+                <td>🏋️ XL</td>
+                <td>8"+ </td>
+                <td>8.5 - 9"</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Measurement Guide -->
+        <div class="measurement-guide">
+          <h3>How to Measure</h3>
+          <ol>
+            <li><strong>Use a soft measuring tape</strong> or flexible string</li>
+            <li><strong>Wrap around wrist bone</strong> where you'd wear the bracelet</li>
+            <li><strong>Keep it snug but comfortable</strong> - not too tight!</li>
+            <li><strong>Note the measurement</strong> in inches or cm</li>
+            <li><strong>Add 0.5 - 1 inch</strong> for comfort and movement</li>
+            <li><strong>Compare to our size chart</strong> above</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Visual Size Comparison -->
+      <div>
+        <h3 style="color: #76023c; margin-bottom: 15px;">📊 Size Visualization</h3>
+        <div class="size-visual">
+          <div class="size-bar small">
+            <label>Small<br>6.5-7"</label>
+          </div>
+          <div class="size-bar medium">
+            <label>Medium<br>7.5-8"</label>
+          </div>
+          <div class="size-bar large">
+            <label>Large<br>8-8.5"</label>
+          </div>
+          <div class="size-bar xl">
+            <label>XL<br>8.5-9"</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unit Conversion -->
+      <div class="conversion-table">
+        <h3>📐 Quick Conversion Guide</h3>
+        <div class="conversion-grid">
+          <div class="conversion-item">
+            <strong>Inches to Centimeters</strong>
+            <span>1" = 2.54 cm</span>
+          </div>
+          <div class="conversion-item">
+            <strong>Medium Size</strong>
+            <span>7.5" = 19 cm</span>
+          </div>
+          <div class="conversion-item">
+            <strong>Large Size</strong>
+            <span>8" = 20.3 cm</span>
+          </div>
+          <div class="conversion-item">
+            <strong>XL Size</strong>
+            <span>8.5" = 21.6 cm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pro Tips -->
+      <div class="tips-section">
+        <h3>💡 Pro Tips for Perfect Fit</h3>
+        <ul>
+          <li><strong>Temperature matters:</strong> Wrists are slightly larger in warm weather</li>
+          <li><strong>Measure multiple times:</strong> Take measurements at different times of day to be sure</li>
+          <li><strong>Consider seasonal clothes:</strong> Long sleeves might affect comfort</li>
+          <li><strong>The "two-finger rule":</strong> You should be able to fit two fingers between bracelet and wrist</li>
+          <li><strong>Not sure?</strong> Go slightly larger for comfort - you can always resize charms!</li>
+          <li><strong>Contact us:</strong> If you're unsure, reach out on Instagram and we'll help you measure!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openSizeChart() {
+      document.getElementById('sizeChartModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSizeChart() {
+      document.getElementById('sizeChartModal').classList.remove('open');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+      const modal = document.getElementById('sizeChartModal');
+      if (event.target === modal) {
+        closeSizeChart();
+      }
+    });
+
+    // Close modal on Escape key
+    window.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeSizeChart();
+      }
+    });
+
+    // Export functions for use in other pages
+    window.openSizeChart = openSizeChart;
+    window.closeSizeChart = closeSizeChart;
+  </script>
+</body>
+</html>
