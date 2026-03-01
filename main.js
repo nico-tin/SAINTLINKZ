@@ -35,7 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
   navLinks.forEach(link => {
     link.addEventListener('click', function(e) {
       const href = this.getAttribute('href');
-      if (href.startsWith('#')) {
+      // if link is just '#', treat as home scroll to top
+      if (href === '#') {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (href.startsWith('#')) {
+        // normal anchor to section
         e.preventDefault();
         const target = document.querySelector(href);
         if (target) {
@@ -54,16 +59,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // ===== Size Chart Modal =====
+  // ===== Image modal (size chart and catalogues) =====
   const sizeChartImg = document.getElementById('sizeChartImg');
   const chartModal = document.getElementById('chartModal');
   const closeModal = document.getElementById('closeModal');
+  const modalChartImg = document.getElementById('modalChartImg');
+
+  function openImageModal(src, alt) {
+    if (!chartModal || !modalChartImg) return;
+    modalChartImg.src = src;
+    modalChartImg.alt = alt || '';
+    chartModal.classList.add('active');
+  }
 
   if (sizeChartImg && chartModal) {
     sizeChartImg.addEventListener('click', function() {
-      chartModal.classList.add('active');
+      openImageModal(this.src, this.alt);
     });
+  }
 
+  // catalogue thumbnails
+  document.querySelectorAll('.catalogue-img').forEach(img => {
+    img.addEventListener('click', function() {
+      openImageModal(this.src, this.alt);
+    });
+  });
+
+  if (closeModal && chartModal) {
     closeModal.addEventListener('click', function() {
       chartModal.classList.remove('active');
     });
@@ -75,11 +97,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // disable browser restoration of scroll position
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
   // ===== Scroll Animation for Elements =====
   const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
   };
+
+  // ===== Center catalogue on refresh =====
+  function centerCatalogue() {
+    // reset vertical position before adjusting horizontal scroll to avoid jump
+    window.scrollTo(0, 0);
+    const container = document.querySelector('.catalogues');
+    if (!container) return;
+    const items = container.querySelectorAll('.catalogue-item');
+    if (items.length === 0) return;
+    const middle = items[Math.floor(items.length/2)];
+    // use scrollIntoView to reliably center horizontally without affecting vertical scroll
+    middle.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+  }
+  // run immediately after load & when window resizes
+  window.addEventListener('load', () => {
+    // make sure any stored scroll pos is cleared on page load
+    window.scrollTo(0,0);
+    centerCatalogue();
+  });
+  window.addEventListener('resize', centerCatalogue);
 
   const observer = new IntersectionObserver(function(entries) {
     entries.forEach(entry => {
@@ -91,32 +136,18 @@ document.addEventListener('DOMContentLoaded', function() {
   }, observerOptions);
 
   // Observe featured items and cards
-  document.querySelectorAll('.featured-item, .care-card, .step, .contact-item').forEach(el => {
+  document.querySelectorAll('.care-card, .step, .contact-item').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(20px)';
     el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     observer.observe(el);
   });
 
-  // ===== Hero Carousel =====
+  // ===== Hero Carousel (removed) =====
+  // Carousel code left in place for backwards compatibility but will no longer run
   (function initHeroCarousel() {
     const carousel = document.getElementById('heroCarousel');
-    if (!carousel) return;
-    const slides = Array.from(carousel.querySelectorAll('.hero-slide'));
-    let current = 0;
-
-    function showSlide(index) {
-      slides.forEach((s, i) => s.classList.toggle('active', i === index));
-    }
-
-    showSlide(current);
-
-    const interval = setInterval(() => {
-      current = (current + 1) % slides.length;
-      showSlide(current);
-    }, 3000);
-
-    carousel.addEventListener('mouseenter', () => clearInterval(interval));
+    if (!carousel) return; // element removed on new design
   })();
 
   // ===== Update Active Nav Link on Scroll =====

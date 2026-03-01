@@ -175,6 +175,61 @@ button:focus {
   outline-offset: 2px;
 }
 
+/* order link container (generator page) */
+#orderLinkContainer {
+  display: none;
+  margin: 20px auto;
+  background-color: #fff9e6;
+  padding: 18px 24px;
+  border: 2px solid #76023c;
+  border-radius: 10px;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(118,2,60,0.25);
+}
+#orderLinkContainer.visible {
+  display: block;
+}
+#orderLinkContainer a {
+  display: inline-block;
+  background-color: #76023c;
+  color: #feffe2;
+  padding: 12px 28px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+#orderLinkContainer a:hover, #orderLinkContainer a:focus {
+  background-color: #5a1b15;
+  transform: translateY(-2px);
+}
+#orderLinkContainer p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #5a1b15;
+}
+
+/* header order link style */
+header .order-link {
+  margin-top: 6px;
+  font-size: 0.95rem;
+}
+header .order-link a,
+header .order-link.btn {
+  color: #feffe2;
+  text-decoration: none;
+  background-color: transparent;
+  border: 2px solid #feffe2;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+header .order-link.btn:hover {
+  background-color: #feffe2;
+  color: #76023c;
+}
+
 .total {
   font-size: 1.2rem;
   font-weight: bold;

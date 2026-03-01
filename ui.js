@@ -21,6 +21,8 @@ const copyMsgEl = document.getElementById('copyMsg');
 const charmsContainer = document.getElementById('charmsContainer');
 const metalFiltersContainer = document.getElementById('metalFilters');
 const braceletInstructionEl = document.getElementById('braceletInstruction');
+// order link container (revealed after generation)
+const orderLinkContainer = document.getElementById('orderLinkContainer');
 
 // Current filter state: 'ALL' | 'GOLD' | 'SILVER' | 'PINK' | 'PLAIN'
 let currentMetalFilter = 'ALL';
@@ -175,6 +177,8 @@ function setupTouchHandlers(itemDiv, srcIndex) {
 }
 
 export function addCharm(img) {
+  // hide order button when bracelet changes
+  if (orderLinkContainer) orderLinkContainer.classList.remove('visible');
   const id = parseInt(img.dataset.name);
   const stock = getCharmStock(id);
   
@@ -201,6 +205,8 @@ export function addCharm(img) {
 }
 
 export function removeCharm(index) {
+  // hide order button when bracelet changes
+  if (orderLinkContainer) orderLinkContainer.classList.remove('visible');
   Bracelet.removeItem(index);
   renderBracelet();
 }
@@ -375,6 +381,11 @@ export function generateBraceletCode() {
   }
   
   braceletCodeEl.innerText = code;
+  // reveal order link once code exists, scroll to it
+  if (orderLinkContainer) {
+    orderLinkContainer.classList.add('visible');
+    orderLinkContainer.scrollIntoView({ behavior: 'smooth' });
+  }
   navigator.clipboard.writeText(code)
     .then(() => {
       copyMsgEl.innerText = 'Generated!';
@@ -488,35 +499,27 @@ function createCharmElement(charm, category, index, inStock, stock, currentCount
     badge.className = 'stock-badge max';
     badge.textContent = '✓';
     wrapper.appendChild(badge);
-  } else if (stock < 10) {
+  } else if (stock < 4) {
     const badge = document.createElement('div');
     badge.className = 'stock-badge low';
     badge.textContent = remainingSlots;
     wrapper.appendChild(badge);
   }
   
-  // Tooltip display handlers - only show one tooltip at a time
-  let tooltipTimeout;
+  // Tooltip display handlers – show on hover only, no auto‑hide timer
   const showTooltip = () => {
-    // Hide all other tooltips
-    document.querySelectorAll('.charm-tooltip').forEach(t => {
-      if (t !== tooltip) {
-        t.style.opacity = '0';
-        clearTimeout(t.dataset.timeoutId);
-      }
-    });
+    // hide other tooltips first so only one is visible
+    document.querySelectorAll('.charm-tooltip').forEach(t => t.style.opacity = '0');
     tooltip.style.opacity = '1';
-    clearTimeout(tooltipTimeout);
   };
   const hideTooltip = () => {
-    clearTimeout(tooltipTimeout);
-    tooltipTimeout = setTimeout(() => { tooltip.style.opacity = '0'; }, 2000);
-    tooltip.dataset.timeoutId = tooltipTimeout;
+    tooltip.style.opacity = '0';
   };
   
   img.addEventListener('mouseenter', showTooltip);
   img.addEventListener('mouseleave', hideTooltip);
   img.addEventListener('click', () => {
+    // keep the tooltip visible on click as well
     showTooltip();
     if (inStock && remainingSlots > 0) addCharm(img);
   });
