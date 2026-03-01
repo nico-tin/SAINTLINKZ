@@ -153,7 +153,9 @@ export const CHARM_CATEGORIES = {
     { id: 134, price: 60, isDangle: true }, { id: 135, price: 60, isDangle: true }, { id: 136, price: 60, isDangle: true },
     { id: 137, price: 60, isDangle: true }, { id: 138, price: 60, isDangle: true }, { id: 139, price: 60, isDangle: true },
     { id: 140, price: 60, isDangle: true }, { id: 141, price: 60, isDangle: true }, { id: 142, price: 60, isDangle: true },
-    { id: 143, price: 60, isDangle: true }, { id: 144, price: 60, isDangle: true }
+    { id: 143, price: 60, isDangle: true }, { id: 144, price: 60, isDangle: true },
+    // New pink dangle items (PDAN12-PDAN13 -> IDs 380-381)
+    { id: 380, price: 60, isDangle: true }, { id: 381, price: 60, isDangle: true }
   ],
   "SILVER - DANGLE": [
     { id: 91, price: 50, isDangle: true },
@@ -175,7 +177,11 @@ export const CHARM_CATEGORIES = {
     { id: 211, price: 90 }, { id: 212, price: 90 }, { id: 213, price: 90 }, { id: 214, price: 90 }, { id: 215, price: 90 },
     { id: 216, price: 90 }, { id: 217, price: 90 }, { id: 218, price: 90 }, { id: 219, price: 90 },
     // Newly uploaded silver-specific premium items (SPRM01-SPRM05 -> IDs 220-224)
-    { id: 220, price: 90 }, { id: 221, price: 90 }, { id: 222, price: 90 }, { id: 223, price: 90 }, { id: 224, price: 90 }
+    { id: 220, price: 90 }, { id: 221, price: 90 }, { id: 222, price: 90 }, { id: 223, price: 90 }, { id: 224, price: 90 },
+    // New silver premium items (SPRM30-SPRM44 -> IDs 360-374)
+    { id: 360, price: 90 }, { id: 361, price: 90 }, { id: 362, price: 90 }, { id: 363, price: 90 }, { id: 364, price: 90 },
+    { id: 365, price: 90 }, { id: 366, price: 90 }, { id: 367, price: 90 }, { id: 368, price: 90 }, { id: 369, price: 90 },
+    { id: 370, price: 90 }, { id: 371, price: 90 }, { id: 372, price: 90 }, { id: 373, price: 90 }, { id: 374, price: 90 }
   ],
 
   // ===== GOLD SECTION =====
@@ -285,7 +291,9 @@ export const CHARM_CATEGORIES = {
     { id: 115, price: 90 }, { id: 116, price: 90 }, { id: 117, price: 90 }, { id: 118, price: 90 }, { id: 119, price: 90 },
     { id: 120, price: 90 }, { id: 121, price: 90 }, { id: 122, price: 90 }, { id: 123, price: 90 }, { id: 124, price: 90 },
     { id: 125, price: 90 }, { id: 126, price: 90 }, { id: 127, price: 90 }, { id: 128, price: 90 }, { id: 129, price: 90 },
-    { id: 130, price: 90 }, { id: 131, price: 90 }, { id: 132, price: 90 }, { id: 133, price: 90 }
+    { id: 130, price: 90 }, { id: 131, price: 90 }, { id: 132, price: 90 }, { id: 133, price: 90 },
+    // New gold premium items (GPRM20-GPRM21 -> IDs 350-351)
+    { id: 350, price: 90 }, { id: 351, price: 90 }
   ],
   // Single consolidated plain charms category (not separated by metal)
   "PLAIN": [
@@ -411,6 +419,8 @@ export function getCharmNewName(id) {
     120: "GPRM06", 121: "GPRM07", 122: "GPRM08", 123: "GPRM09", 124: "GPRM10",
     125: "GPRM11", 126: "GPRM12", 127: "GPRM13", 128: "GPRM14", 129: "GPRM15",
     130: "GPRM16", 131: "GPRM17", 132: "GPRM18", 133: "GPRM19",
+    // New gold premium (350-351 -> GPRM20-GPRM21)
+    350: "GPRM20", 351: "GPRM21",
     // Pink dangly uploaded (134-144 -> DAN06-DAN16)
     134: "PDAN01", 135: "PDAN02", 136: "PDAN03", 137: "PDAN04", 138: "PDAN05",
     139: "PDAN06", 140: "PDAN07", 141: "PDAN08", 142: "PDAN09", 143: "PDAN10", 144: "PDAN11",
@@ -424,6 +434,12 @@ export function getCharmNewName(id) {
     211: "SPRM16", 212: "SPRM17", 213: "SPRM18", 214: "SPRM19", 215: "SPRM20",
     216: "SPRM21", 217: "SPRM22", 218: "SPRM23", 219: "SPRM24",
     220: "SPRM25", 221: "SPRM26", 222: "SPRM27", 223: "SPRM28", 224: "SPRM29",
+    // New silver premium (360-374 -> SPRM30-SPRM44)
+    360: "SPRM30", 361: "SPRM31", 362: "SPRM32", 363: "SPRM33", 364: "SPRM34",
+    365: "SPRM35", 366: "SPRM36", 367: "SPRM37", 368: "SPRM38", 369: "SPRM39",
+    370: "SPRM40", 371: "SPRM41", 372: "SPRM42", 373: "SPRM43", 374: "SPRM44",
+    // New pink dangle (380-381 -> PDAN12-PDAN13)
+    380: "PDAN12", 381: "PDAN13",
     // Newly added plain images
     304: "VPLAIN", 305: "BPLAIN",
     // Plain images mapping
