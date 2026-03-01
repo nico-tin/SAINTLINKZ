@@ -499,7 +499,7 @@ function createCharmElement(charm, category, index, inStock, stock, currentCount
     badge.className = 'stock-badge max';
     badge.textContent = '✓';
     wrapper.appendChild(badge);
-  } else if (stock < 4) {
+  } else if (stock < 2) {
     const badge = document.createElement('div');
     badge.className = 'stock-badge low';
     badge.textContent = remainingSlots;
