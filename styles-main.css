@@ -169,6 +169,14 @@ body {
   font-size: 1.1rem;
 }
 
+.catalogue-price {
+  margin-top: 5px;
+  font-weight: 700;
+  color: #d4af37;
+  text-align: center;
+  font-size: 1.3rem;
+}
+
 .catalogue-img {
   width: 100%;
   height: auto;

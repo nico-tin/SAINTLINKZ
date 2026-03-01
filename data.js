@@ -45,7 +45,7 @@ export const CATEGORY_INFO = {
   "COUPLE": { icon: "👫", description: "Couple Themes" },
   "F1": { icon: "🏎️", description: "Formula 1" },
   "I LOVE": { icon: "❤️", description: "I Love..." },
-  "TEMP": { icon: "⭐", description: "Popular Picks" },
+  "TRENDY": { icon: "⭐", description: "Popular Picks" },
   "DANGLE": { icon: "✨", description: "Dangle Charms" },
   "PINK - DANGLE": { icon: "🎀", description: "Pink Dangle Charms" },
   "PLAIN": { icon: "◻️", description: "Plain Charms" },
@@ -120,7 +120,7 @@ export const CHARM_CATEGORIES = {
     { id: 28, price: 35 },
     { id: 72, price: 35 },
   ],
-  "SILVER - TEMP": [
+  "SILVER - TRENDY": [
     { id: 16, price: 35 },
     { id: 22, price: 35 },
     { id: 25, price: 35 },
@@ -250,7 +250,7 @@ export const CHARM_CATEGORIES = {
     { id: 28, price: 45 },
     { id: 72, price: 45 },
   ],
-  "GOLD - TEMP": [
+  "GOLD - TRENDY": [
     { id: 16, price: 45 },
     { id: 22, price: 45 },
     { id: 25, price: 45 },
@@ -459,7 +459,7 @@ export function getFolderName(category) {
     "COUPLE": "COU",
     "F1": "F1",
     "I LOVE": "ILO",
-    "TEMP": "TEM",
+    "TRENDY": "TEM",
     "DANGLE": "DAN",
     "PREMIUM": "PRM"
   };
