@@ -82,42 +82,60 @@ function setupTouchHandlers(itemDiv, srcIndex) {
     const dy = Math.abs(touch.clientY - touchState.startY);
     
     if (!touchState.dragging && touchState.holdTimer && (dx > 12 || dy > 12)) {
+      // If movement is mostly horizontal, cancel drag intent to allow scrolling
+      if (dx > dy * 1.5) {
+        clearTimeout(touchState.holdTimer);
+        touchState.holdTimer = null;
+        return; // Don't prevent default for horizontal scrolling
+      }
       clearTimeout(touchState.holdTimer);
       touchState.holdTimer = null;
     }
 
-    e.preventDefault();
-    if (touchState.dragging && touchState.ghost) {
-      touchState.ghost.style.left = touch.clientX + 'px';
-      touchState.ghost.style.top = touch.clientY + 'px';
+    // Only prevent default touch behavior when actually dragging
+    // Allow horizontal scrolling when movement is mostly horizontal
+    if (touchState.dragging) {
+      e.preventDefault();
+      if (touchState.ghost) {
+        touchState.ghost.style.left = touch.clientX + 'px';
+        touchState.ghost.style.top = touch.clientY + 'px';
 
-      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      const targetItem = findBraceletItemElement(el);
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        const targetItem = findBraceletItemElement(el);
 
-      let mode = null;
-      if (targetItem) {
-        const rect = targetItem.getBoundingClientRect();
-        const x = touch.clientX - rect.left;
-        const ratio = x / rect.width;
-        if (ratio < 0.4) mode = 'before';
-        else if (ratio > 0.6) mode = 'after';
-        else mode = 'center';
+        let mode = null;
+        if (targetItem) {
+          const rect = targetItem.getBoundingClientRect();
+          const x = touch.clientX - rect.left;
+          const ratio = x / rect.width;
+          if (ratio < 0.4) mode = 'before';
+          else if (ratio > 0.6) mode = 'after';
+          else mode = 'center';
+        }
+
+        if (currentDragTarget.el === targetItem && currentDragTarget.mode === mode) return;
+
+        document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('drag-over','insert-before','insert-after','drop-center'));
+
+        if (targetItem) {
+          currentDragTarget.el = targetItem;
+          currentDragTarget.mode = mode;
+          if (mode === 'before') targetItem.classList.add('insert-before');
+          else if (mode === 'after') targetItem.classList.add('insert-after');
+          else targetItem.classList.add('drop-center');
+        } else {
+          currentDragTarget.el = null;
+          currentDragTarget.mode = null;
+        }
       }
-
-      if (currentDragTarget.el === targetItem && currentDragTarget.mode === mode) return;
-
-      document.querySelectorAll('.bracelet-item').forEach(el => el.classList.remove('drag-over','insert-before','insert-after','drop-center'));
-
-      if (targetItem) {
-        currentDragTarget.el = targetItem;
-        currentDragTarget.mode = mode;
-        if (mode === 'before') targetItem.classList.add('insert-before');
-        else if (mode === 'after') targetItem.classList.add('insert-after');
-        else targetItem.classList.add('drop-center');
-      } else {
-        currentDragTarget.el = null;
-        currentDragTarget.mode = null;
+    } else {
+      // If not dragging, check if this looks like a scroll gesture (mostly horizontal)
+      // If so, don't prevent default to allow scrolling
+      if (dx > dy * 1.5) {
+        // Mostly horizontal movement - allow scrolling
+        return;
       }
+      // Mostly vertical or diagonal - could be start of drag, but we already handle this above
     }
   }, { passive: false });
 
